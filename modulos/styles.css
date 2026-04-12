@@ -1,0 +1,260 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+ 
+:root {
+  --bg-card:       #d5a3e8;   /* lila suave del card */
+  --accent:        #f050a0;   /* rosa fuerte de los botones */
+  --accent-hover:  #d63d8a;
+  --logo-bg:       #f050a0;
+  --icon-color:    #1a1a1a;
+  --pill-bg:       #b8f0e8;   /* celeste del pill */
+  --text-dark:     #1a1a1a;
+  --text-light:    #fff;
+  --radius-card:   24px;
+  --radius-btn:    12px;
+  --radius-pill:   999px;
+  --shadow-card:   0 8px 40px rgba(160, 60, 180, 0.25);
+  --shadow-btn:    0 4px 16px rgba(240, 80, 160, 0.35);
+  --font-display:  'Syne', sans-serif;
+  --font-body:     'DM Sans', sans-serif;
+}
+ 
+body {
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #c47de0 0%, #e8b4f8 100%);
+  padding: 24px;
+}
+ 
+/* =========================================
+   App Card
+   ========================================= */
+.app-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  max-width: 780px;
+  min-height: 380px;
+  padding: 28px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  animation: fadeUp 0.5s ease both;
+}
+ 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+/* =========================================
+   Header
+   ========================================= */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+ 
+.logo-box {
+  background: var(--logo-bg);
+  border-radius: 10px;
+  padding: 12px 22px;
+  box-shadow: 3px 4px 0px rgba(0,0,0,0.18);
+  transform: rotate(-1deg);
+  transition: transform 0.2s ease;
+}
+ 
+.logo-box:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+ 
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+ 
+.header-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+ 
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: transform 0.2s ease, opacity 0.2s;
+}
+ 
+.icon-btn svg {
+  width: 44px;
+  height: 44px;
+}
+ 
+.icon-btn:hover {
+  transform: scale(1.12);
+  opacity: 0.75;
+}
+ 
+/* =========================================
+   Main Content
+   ========================================= */
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+ 
+.action-btn {
+  background: var(--accent);
+  color: var(--text-dark);
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 28px 16px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.01em;
+}
+ 
+.action-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(240, 80, 160, 0.45);
+}
+ 
+.action-btn:active {
+  transform: translateY(0px);
+  box-shadow: var(--shadow-btn);
+}
+
+a.action-btn--link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+ 
+/* =========================================
+   Footer / Nav Pill
+   ========================================= */
+.footer {
+  display: flex;
+  align-items: center;
+}
+
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.nav-pill__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.nav-pill--back {
+  background: var(--pill-bg);
+  color: var(--text-dark);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-pill--back:hover {
+  background: #9ae8d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.nav-pill--back:hover .nav-pill__icon {
+  transform: translateX(-3px);
+}
+
+.nav-pill--back:active {
+  transform: translateY(0);
+}
+
+button.info-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  background: var(--pill-bg);
+  color: var(--text-dark);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+button.info-pill:hover {
+  background: #9ae8d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+button.info-pill:active {
+  transform: translateY(0);
+}
+ 
+/* =========================================
+   Responsive
+   ========================================= */
+@media (max-width: 600px) {
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+ 
+  .logo-text {
+    font-size: 0.9rem;
+  }
+ 
+  .icon-btn svg {
+    width: 34px;
+    height: 34px;
+  }
+}

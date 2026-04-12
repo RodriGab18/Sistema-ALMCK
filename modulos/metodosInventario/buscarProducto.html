@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscar Producto para Modificar</title>
+  <link rel="stylesheet" href="estiloInventario.css">
+  <style>
+    /* Estilos rápidos para que se vea bien mientras carga tu CSS */
+    .badge { background: #e5e7eb; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; }
+    .edit-link { color: #2563eb; font-weight: bold; text-decoration: none; }
+    .edit-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <h2>🔍 Buscar Producto para Modificar</h2>
+
+    <div class="header-tools">
+      <input type="text" id="campoBusqueda" class="search-box" placeholder="Ej: Camisa, Perfume...">
+      <button type="button" class="btn-search" id="btnBuscar">Buscar</button>
+    </div>
+
+    <table id="tablaResultados" style="width:100%; border-collapse: collapse; margin-top: 20px;">
+      <thead>
+        <tr style="background: #f3f4f6; text-align: left;">
+          <th>ID</th>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Stock</th>
+          <th>Precio</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpoTabla">
+        <tr>
+          <td colspan="6" style="text-align:center; color:#6b7280; padding:40px 0;">
+            Escribe el nombre y presiona "Buscar"
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top: 20px; text-align: center;">
+    <a class="btn-salir" href="../inventario.html" style="color: #666;">← Regresar al Menú</a>
+  </div>
+
+  <script type="module">
+    import { supabase } from '../../supabaseClient.js';
+
+    const campoBusqueda = document.getElementById('campoBusqueda');
+    const cuerpoTabla = document.getElementById('cuerpoTabla');
+
+    function formatPrice(price) {
+      return new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(price);
+    }
+
+    campoBusqueda.addEventListener('keydown', (e) => { if (e.key === 'Enter') ejecutarBusqueda(); });
+    document.getElementById('btnBuscar').addEventListener('click', ejecutarBusqueda);
+
+    async function ejecutarBusqueda() {
+      const termino = campoBusqueda.value.trim();
+      if (!termino) return;
+
+      cuerpoTabla.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px 0;">Buscando...</td></tr>`;
+
+      try {
+        // IMPORTANTE: Ajuste de nombres de columnas y JOIN
+        const { data: resultados, error } = await supabase
+          .from('productos')
+          .select('*, tipos_producto(nombre)')
+          .ilike('nombreProducto', `%${termino}%`)
+          .order('ProductoID', { ascending: false });
+
+        if (error) throw error;
+
+        if (!resultados || resultados.length === 0) {
+          cuerpoTabla.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px 0;">No se encontró "${termino}"</td></tr>`;
+          return;
+        }
+
+        cuerpoTabla.innerHTML = resultados.map(p => `
+          <tr>
+            <td>#${p.ProductoID}</td>
+            <td><strong>${p.nombreProducto}</strong></td>
+            <td><span class="badge">${p.tipos_producto?.nombre || 'S/N'}</span></td>
+            <td>${p.cantidadProducto}</td>
+            <td>${formatPrice(p.precioProducto)}</td>
+            <td>
+              <button class="btn-seleccionar" 
+                      style="background:#10b981; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;"
+                      onclick="irAEditar(${p.ProductoID})">
+                Seleccionar
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+        cuerpoTabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding:40px 0;">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Función global para redireccionar
+    window.irAEditar = (id) => {
+      window.location.href = `formularioEditar.html?id=${id}`;
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── Variables ── */
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --border: #e2e6ea;
+  --text-primary: #1a1d23;
+  --text-secondary: #6b7280;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --success: #16a34a;
+  --success-hover: #15803d;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --font: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+/* ── Reset base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background-color: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 40px 20px 80px;
+}
+
+/* ── Contenedor principal ── */
+.container,
+.main-container {
+  background: var(--surface);
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.main-container {
+  max-width: 960px;
+}
+
+/* ── Encabezados ── */
+h2 {
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+/* ── Grupos de formulario ── */
+.form-group { margin-bottom: 18px; }
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fafafa;
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+textarea { resize: vertical; }
+
+/* ── Botón principal de acción ── */
+button[type="submit"],
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--success);
+  border: none;
+  color: #fff;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 4px;
+}
+
+button[type="submit"]:hover,
+.btn-primary:hover { background-color: var(--success-hover); }
+button[type="submit"]:active,
+.btn-primary:active { transform: scale(0.98); }
+
+/* ── Barra de herramientas (consultaInventario) ── */
+.header-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.search-box {
+  flex-grow: 1;
+  padding: 10px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: #fafafa;
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.btn-search {
+  padding: 10px 22px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-search:hover { background: var(--accent-hover); }
+.btn-search:active { transform: scale(0.97); }
+
+/* ── Tabla ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  background-color: #1e293b;
+  color: #fff;
+  text-align: left;
+  padding: 13px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+thead th:last-child  { border-radius: 0 var(--radius-sm) 0 0; }
+
+tbody td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+tbody tr:hover { background-color: #f8fafd; }
+
+/* ID con fuente mono */
+tbody td:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ── Badge de categoría ── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  letter-spacing: 0.02em;
+}
+
+/* ── Enlace editar ── */
+a.edit-link {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+
+a.edit-link:hover { background: #dbeafe; }
+
+/* ── Botón SALIR (mejorado) ── */
+.btn-salir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  padding: 11px 22px;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  z-index: 100;
+}
+
+.btn-salir::before {
+  content: '←';
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.btn-salir:hover {
+  background: #fff;
+  border-color: #c0c8d4;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.btn-salir:hover::before { transform: translateX(-3px); }
+.btn-salir:active { transform: translateY(0); }
+
+/* ── ID Badge (modificarProducto) ── */
+.id-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: #dbeafe;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+/* ── Zona de peligro ── */
+.danger-zone {
+  margin-top: 28px;
+  padding: 18px;
+  border: 1.5px solid #fca5a5;
+  border-radius: var(--radius);
+  background: #fef2f2;
+}
+
+.danger-zone p {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #b91c1c;
+  margin-bottom: 12px;
+}
+
+.btn-danger {
+  padding: 10px 20px;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-danger:hover { background: #b91c1c; }
+.btn-danger:active { transform: scale(0.97); }
+
+/* ── Link eliminar en tabla ── */
+a.delete-link {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+  margin-left: 6px;
+}
+
+a.delete-link:hover { background: #fee2e2; }
+
+/* ── Celda de acciones ── */
+.acciones-celda {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* ── Enlace deshabilitado ── */
+.edit-link.disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  pointer-events: none;
+}
