@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-/* ── Variables ── */
+/* ============================================================
+   estiloInventario.css — Hoja de estilos centralizada
+   para todas las páginas de inventario (principio DRY).
+   ============================================================ */
+
+
+/* ── Variables globales de diseño ──
+   Se definen una sola vez y se reutilizan en todo el archivo.
+   Para cambiar colores o radios, basta con modificar aquí.
+   ============================================================ */
 :root {
   --bg: #f0f2f5;
   --surface: #ffffff;
@@ -9,8 +18,11 @@
   --text-secondary: #6b7280;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
-  --success: #16a34a;
-  --success-hover: #15803d;
+  --success: #10b981;
+  --success-hover: #059669;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --danger-dark: #b91c1c;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
   --radius: 10px;
@@ -19,7 +31,10 @@
   --font-mono: 'DM Mono', monospace;
 }
 
-/* ── Reset base ── */
+
+/* ── Reset base ──
+   Normaliza márgenes y usa border-box en todo.
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -30,23 +45,55 @@ body {
   padding: 40px 20px 80px;
 }
 
-/* ── Contenedor principal ── */
+
+/* ============================================================
+   SECCIÓN: Contenedores principales
+   Reutilizados por: buscarProducto, consultaInventario,
+   agregarProducto, modificarProducto.
+   ============================================================ */
+
+/* Contenedor compacto para formularios (agregar / modificar) */
 .container,
+.form-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Contenedor ancho para tablas (consulta / búsqueda) */
 .main-container {
   background: var(--surface);
   padding: 32px;
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
   width: 100%;
-  max-width: 460px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
-.main-container {
-  max-width: 960px;
+
+/* ============================================================
+   SECCIÓN: Encabezados
+   Reutilizados por todas las páginas.
+   ============================================================ */
+
+/* Encabezado con logo centrado (agregar, modificar, consulta) */
+.centered-header {
+  text-align: center;
+  padding: 1rem;
 }
 
-/* ── Encabezados ── */
+/* Títulos h1 dentro de contenedores de formulario */
+.form-container h1 {
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  font-family: 'Syne', var(--font);
+}
+
+/* Títulos h2 de sección (búsqueda, consulta) */
 h2 {
   text-align: center;
   color: var(--text-primary);
@@ -56,67 +103,149 @@ h2 {
   letter-spacing: -0.02em;
 }
 
-/* ── Grupos de formulario ── */
-.form-group { margin-bottom: 18px; }
 
-label {
+/* ============================================================
+   SECCIÓN: Formularios — Campos de entrada
+   Reutilizados por: agregarProducto, modificarProducto.
+   (DRY: mismas reglas para ambos formularios)
+   ============================================================ */
+.form-group { margin-bottom: 1.5rem; }
+
+.form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-input,
-select,
-textarea {
+.form-group input,
+.form-group select {
   width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
+  padding: 0.75rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #fafafa;
-  color: var(--text-primary);
-  font-family: var(--font);
-  font-size: 0.95rem;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+.form-group input:focus,
+.form-group select:focus {
   border-color: var(--accent);
-  background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-textarea { resize: vertical; }
+/* Label tipo checkbox: en línea con gap */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
 
-/* ── Botón principal de acción ── */
-button[type="submit"],
-.btn-primary {
-  width: 100%;
-  padding: 12px;
-  background-color: var(--success);
+/* Checkbox no ocupa todo el ancho */
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+}
+
+
+/* ============================================================
+   SECCIÓN: Botones de acción (DRY)
+   .btn-action es la base reutilizable.
+   Se extiende con modificadores: --success, --danger, --accent, --secondary.
+   ============================================================ */
+.btn-action {
+  padding: 0.75rem 1.5rem;
   border: none;
-  color: #fff;
-  font-family: var(--font);
-  font-size: 0.95rem;
-  font-weight: 600;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-  margin-top: 4px;
+  font-size: 1rem;
+  font-family: var(--font);
+  font-weight: 600;
+  transition: background 0.3s, transform 0.1s;
 }
 
-button[type="submit"]:hover,
-.btn-primary:hover { background-color: var(--success-hover); }
-button[type="submit"]:active,
-.btn-primary:active { transform: scale(0.98); }
+.btn-action:active { transform: scale(0.97); }
 
-/* ── Barra de herramientas (consultaInventario) ── */
+.btn-action:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Botón verde (guardar, actualizar, seleccionar) */
+.btn-action--success {
+  background: var(--success);
+  color: white;
+}
+.btn-action--success:hover { background: var(--success-hover); }
+
+/* Botón rojo (eliminar) */
+.btn-action--danger {
+  background: var(--danger);
+  color: white;
+}
+.btn-action--danger:hover { background: var(--danger-hover); }
+
+/* Botón azul (buscar) */
+.btn-action--accent {
+  background: var(--accent);
+  color: white;
+}
+.btn-action--accent:hover { background: var(--accent-hover); }
+
+/* Botón gris (secundario, mostrar todos) */
+.btn-action--secondary {
+  background: var(--text-secondary);
+  color: white;
+}
+.btn-action--secondary:hover { background: #4b5563; }
+
+/* Botón que ocupa todo el ancho (formularios) */
+.btn-action--full {
+  width: 100%;
+}
+
+/* Botón de eliminar con margen superior (dentro de formularios) */
+.btn-action--danger-margin {
+  margin-top: 1rem;
+}
+
+/* Botón redondo estilo pill (regresar en consulta) */
+.btn-pill {
+  background: #eee;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.2s;
+}
+.btn-pill:hover { background: #ddd; }
+
+
+/* ============================================================
+   SECCIÓN: Barra de búsqueda
+   Reutilizada por: buscarProducto, consultaInventario.
+   ============================================================ */
+
+/* Barra de búsqueda tipo flex (consulta inventario) */
+.search-bar {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* Barra de herramientas compacta (buscar producto) */
 .header-tools {
   display: flex;
   justify-content: space-between;
@@ -160,12 +289,44 @@ button[type="submit"]:active,
 .btn-search:hover { background: var(--accent-hover); }
 .btn-search:active { transform: scale(0.97); }
 
-/* ── Tabla ── */
+
+/* ============================================================
+   SECCIÓN: Tablas de datos
+   Reutilizadas por: consultaInventario, buscarProducto.
+   ============================================================ */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* Tabla con fondo blanco y sombra (consulta inventario) */
+.productos-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Cabecera de tabla — estilo oscuro (consulta) */
+.productos-table th {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.productos-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+/* Cabecera estilo oscuro para tablas genéricas */
 thead th {
   background-color: #1e293b;
   color: #fff;
@@ -188,14 +349,68 @@ tbody td {
 
 tbody tr:hover { background-color: #f8fafd; }
 
-/* ID con fuente mono */
+/* ID con fuente monoespaciada */
 tbody td:first-child {
   font-family: var(--font-mono);
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
 
-/* ── Badge de categoría ── */
+
+/* ============================================================
+   SECCIÓN: Botones de tabla (DRY)
+   Reutilizados por: consultaInventario (editar/eliminar),
+   buscarProducto (seleccionar).
+   ============================================================ */
+
+/* Botón editar en tabla (verde) */
+.btn-editar {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.btn-editar:hover { background: var(--success-hover); }
+
+/* Botón eliminar en tabla (rojo) */
+.btn-eliminar {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-eliminar:hover { background: var(--danger-hover); }
+
+/* Botón seleccionar en tabla (verde) — reutiliza colores de éxito */
+.btn-seleccionar {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: var(--font);
+  transition: background 0.2s;
+}
+.btn-seleccionar:hover { background: var(--success-hover); }
+
+
+/* ============================================================
+   SECCIÓN: Badges y estados
+   Reutilizados por: consultaInventario (tipo, disponibilidad),
+   buscarProducto (categoría), modificarProducto (ID).
+   ============================================================ */
+
+/* Badge genérico (categoría en búsqueda) */
 .badge {
   display: inline-block;
   padding: 3px 10px;
@@ -207,7 +422,74 @@ tbody td:first-child {
   letter-spacing: 0.02em;
 }
 
-/* ── Enlace editar ── */
+/* Badge de tipo de producto (consulta inventario) */
+.tipo-badge {
+  padding: 0.25rem 0.75rem;
+  background: #e5e7eb;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+/* Badge de ID del producto (modificar producto) */
+.id-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: #dbeafe;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+/* Estados de disponibilidad (consulta inventario) */
+.disponible-true { color: var(--success); font-weight: bold; }
+.disponible-false { color: var(--danger); font-weight: bold; }
+
+
+/* ============================================================
+   SECCIÓN: Mensajes de retroalimentación (DRY)
+   Reutilizados por: agregarProducto, modificarProducto.
+   Un solo bloque .message con modificadores .success / .error.
+   ============================================================ */
+.message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  display: none;
+  font-weight: 500;
+}
+
+.message.success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+
+/* ============================================================
+   SECCIÓN: Estado de carga / conexión (DRY)
+   Reutilizado por: agregarProducto (conexión),
+   modificarProducto (cargando datos), consultaInventario.
+   ============================================================ */
+.loading {
+  text-align: center;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+
+/* ============================================================
+   SECCIÓN: Enlace de edición (buscarProducto)
+   ============================================================ */
 a.edit-link {
   color: var(--accent);
   font-weight: 600;
@@ -220,7 +502,18 @@ a.edit-link {
 
 a.edit-link:hover { background: #dbeafe; }
 
-/* ── Botón SALIR (mejorado) ── */
+/* Enlace deshabilitado */
+.edit-link.disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   SECCIÓN: Botón SALIR / Regresar (DRY)
+   Reutilizado por todas las páginas como botón flotante.
+   ============================================================ */
 .btn-salir {
   display: flex;
   align-items: center;
@@ -260,19 +553,10 @@ a.edit-link:hover { background: #dbeafe; }
 .btn-salir:hover::before { transform: translateX(-3px); }
 .btn-salir:active { transform: translateY(0); }
 
-/* ── ID Badge (modificarProducto) ── */
-.id-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--accent);
-  background: #dbeafe;
-  padding: 5px 14px;
-  border-radius: 999px;
-}
 
-/* ── Zona de peligro ── */
+/* ============================================================
+   SECCIÓN: Zona de peligro (modificarProducto)
+   ============================================================ */
 .danger-zone {
   margin-top: 28px;
   padding: 18px;
@@ -286,27 +570,14 @@ a.edit-link:hover { background: #dbeafe; }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #b91c1c;
+  color: var(--danger-dark);
   margin-bottom: 12px;
 }
 
-.btn-danger {
-  padding: 10px 20px;
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-family: var(--font);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
 
-.btn-danger:hover { background: #b91c1c; }
-.btn-danger:active { transform: scale(0.97); }
-
-/* ── Link eliminar en tabla ── */
+/* ============================================================
+   SECCIÓN: Link eliminar en tabla
+   ============================================================ */
 a.delete-link {
   color: #dc2626;
   font-weight: 600;
@@ -320,16 +591,46 @@ a.delete-link {
 
 a.delete-link:hover { background: #fee2e2; }
 
-/* ── Celda de acciones ── */
+
+/* ============================================================
+   SECCIÓN: Celda de acciones en tabla
+   ============================================================ */
 .acciones-celda {
   display: flex;
   gap: 4px;
   align-items: center;
 }
 
-/* ── Enlace deshabilitado ── */
-.edit-link.disabled {
-  color: #9ca3af;
-  cursor: not-allowed;
-  pointer-events: none;
+
+/* ============================================================
+   SECCIÓN: Layouts comunes (DRY)
+   Clases utilitarias para centrar contenido, footers, etc.
+   Evita repetir style="" en línea en cada HTML.
+   ============================================================ */
+
+/* Footer centrado con padding */
+.centered-footer {
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Footer de formulario con margen */
+.form-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Texto centrado genérico */
+.text-center { text-align: center; }
+
+/* Contenedor de tabla con margen superior */
+.table-spacing {
+  margin-top: 20px;
+}
+
+/* Enlace de regresar centrado (buscarProducto) */
+.back-link-wrapper {
+  margin-top: 20px;
+  text-align: center;
 }

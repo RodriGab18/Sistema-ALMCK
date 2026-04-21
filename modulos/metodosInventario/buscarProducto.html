@@ -5,12 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buscar Producto para Modificar</title>
   <link rel="stylesheet" href="estiloInventario.css">
-  <style>
-    /* Estilos rápidos para que se vea bien mientras carga tu CSS */
-    .badge { background: #e5e7eb; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; }
-    .edit-link { color: #2563eb; font-weight: bold; text-decoration: none; }
-    .edit-link:hover { text-decoration: underline; }
-  </style>
 </head>
 <body>
 
@@ -22,9 +16,9 @@
       <button type="button" class="btn-search" id="btnBuscar">Buscar</button>
     </div>
 
-    <table id="tablaResultados" style="width:100%; border-collapse: collapse; margin-top: 20px;">
+    <table id="tablaResultados" class="table-spacing">
       <thead>
-        <tr style="background: #f3f4f6; text-align: left;">
+        <tr>
           <th>ID</th>
           <th>Producto</th>
           <th>Categoría</th>
@@ -35,7 +29,7 @@
       </thead>
       <tbody id="cuerpoTabla">
         <tr>
-          <td colspan="6" style="text-align:center; color:#6b7280; padding:40px 0;">
+          <td colspan="6" class="text-center loading">
             Escribe el nombre y presiona "Buscar"
           </td>
         </tr>
@@ -43,8 +37,8 @@
     </table>
   </div>
 
-  <div style="margin-top: 20px; text-align: center;">
-    <a class="btn-salir" href="../inventario.html" style="color: #666;">← Regresar al Menú</a>
+  <div class="back-link-wrapper">
+    <a class="btn-salir" href="../inventario.html">Regresar al Menú</a>
   </div>
 
   <script type="module">
@@ -64,7 +58,7 @@
       const termino = campoBusqueda.value.trim();
       if (!termino) return;
 
-      cuerpoTabla.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px 0;">Buscando...</td></tr>`;
+      cuerpoTabla.innerHTML = `<tr><td colspan="6" class="text-center loading">Buscando...</td></tr>`;
 
       try {
         // IMPORTANTE: Ajuste de nombres de columnas y JOIN
@@ -77,7 +71,7 @@
         if (error) throw error;
 
         if (!resultados || resultados.length === 0) {
-          cuerpoTabla.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px 0;">No se encontró "${termino}"</td></tr>`;
+          cuerpoTabla.innerHTML = `<tr><td colspan="6" class="text-center loading">No se encontró "${termino}"</td></tr>`;
           return;
         }
 
@@ -89,8 +83,7 @@
             <td>${p.cantidadProducto}</td>
             <td>${formatPrice(p.precioProducto)}</td>
             <td>
-              <button class="btn-seleccionar" 
-                      style="background:#10b981; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;"
+              <button class="btn-seleccionar"
                       onclick="irAEditar(${p.ProductoID})">
                 Seleccionar
               </button>
@@ -100,7 +93,7 @@
 
       } catch (err) {
         console.error(err);
-        cuerpoTabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red; padding:40px 0;">Error: ${err.message}</td></tr>`;
+        cuerpoTabla.innerHTML = `<tr><td colspan="6" class="text-center message error" style="display:table-cell;">Error: ${err.message}</td></tr>`;
       }
     }
 

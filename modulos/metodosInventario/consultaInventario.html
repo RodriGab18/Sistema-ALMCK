@@ -6,43 +6,29 @@
   <title>Consultar Inventario - Sistema ALMCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css">
-  <style>
-    /* ... Tus estilos se mantienen igual ... */
-    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-    .search-bar { margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
-    .search-bar input { flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; }
-    .productos-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .productos-table th, .productos-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
-    .productos-table th { background: #f8f9fa; }
-    .btn-eliminar { background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
-    .btn-editar { background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 0.9rem; }
-    .disponible-true { color: #10b981; font-weight: bold; }
-    .disponible-false { color: #ef4444; font-weight: bold; }
-    .tipo-badge { padding: 0.25rem 0.75rem; background: #e5e7eb; border-radius: 20px; font-size: 0.85rem; }
-  </style>
+  <link rel="stylesheet" href="estiloInventario.css">
 </head>
 <body>
-  <header class="header" style="text-align: center; padding: 1rem;">
+  <header class="header centered-header">
     <img src="../../recursos/logoALMCK.jpeg" width="80" alt="Logo">
   </header>
 
-  <main class="container">
+  <main class="main-container">
     <h1>📋 Inventario de Productos</h1>
     
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre..." autocomplete="off">
-      <button onclick="buscarProductos()" style="background: #3b82f6; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer;">Buscar</button>
-      <button onclick="cargarTodos()" style="background: #6b7280; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer;">Mostrar Todos</button>
+      <button onclick="buscarProductos()" class="btn-action btn-action--accent">Buscar</button>
+      <button onclick="cargarTodos()" class="btn-action btn-action--secondary">Mostrar Todos</button>
     </div>
 
     <div id="productosList">
-      <div class="loading" style="text-align: center; padding: 2rem;">Cargando productos...</div>
+      <div class="loading">Cargando productos...</div>
     </div>
   </main>
 
-  <footer style="text-align: center; padding: 2rem;">
-    <button onclick="window.location.href='../inventario.html'" style="background: #eee; border: none; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer;">← Regresar</button>
+  <footer class="centered-footer">
+    <button class="btn-pill" onclick="window.location.href='../inventario.html'">← Regresar</button>
   </footer>
 
   <script type="module">
@@ -73,7 +59,7 @@
     // 3. Cargar productos con JOIN a tipos_producto
     async function cargarProductos(searchTerm = '') {
       const container = document.getElementById('productosList');
-      container.innerHTML = '<div style="text-align: center;">⏳ Buscando...</div>';
+      container.innerHTML = '<div class="loading">⏳ Buscando...</div>';
 
       try {
         // Hacemos un SELECT relacional para traer el nombre del tipo
@@ -93,7 +79,7 @@
         if (error) throw error;
 
         if (!data || data.length === 0) {
-          container.innerHTML = '<div style="text-align: center; padding: 3rem;">📦 No se encontraron productos.</div>';
+          container.innerHTML = '<div class="loading">📦 No se encontraron productos.</div>';
           return;
         }
 
@@ -137,7 +123,7 @@
         container.innerHTML = html;
 
       } catch (err) {
-        container.innerHTML = `<div style="color: red; text-align: center;">Error: ${err.message}</div>`;
+        container.innerHTML = `<div class="message error" style="display:block;">Error: ${err.message}</div>`;
       }
     }
 
