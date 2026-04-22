@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscar Producto para Modificar</title>
+  <link rel="stylesheet" href="estiloInventario.css">
+</head>
+<body>
+
+  <div class="main-container">
+    <h2>🔍 Buscar Producto para Modificar</h2>
+
+    <div class="header-tools">
+      <input type="text" id="campoBusqueda" class="search-box" placeholder="Ej: Camisa, Perfume...">
+      <button type="button" class="btn-search" id="btnBuscar">Buscar</button>
+    </div>
+
+    <table id="tablaResultados" class="table-spacing">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Stock</th>
+          <th>Precio</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpoTabla">
+        <tr>
+          <td colspan="6" class="text-center loading">
+            Escribe el nombre y presiona "Buscar"
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="back-link-wrapper">
+    <a class="btn-salir" href="../inventario.html">Regresar al Menú</a>
+  </div>
+
+  <script type="module">
+    import { supabase } from '../../supabaseClient.js';
+
+    const campoBusqueda = document.getElementById('campoBusqueda');
+    const cuerpoTabla = document.getElementById('cuerpoTabla');
+
+    function formatPrice(price) {
+      return new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(price);
+    }
+
+    campoBusqueda.addEventListener('keydown', (e) => { if (e.key === 'Enter') ejecutarBusqueda(); });
+    document.getElementById('btnBuscar').addEventListener('click', ejecutarBusqueda);
+
+    async function ejecutarBusqueda() {
+      const termino = campoBusqueda.value.trim();
+      if (!termino) return;
+
+      cuerpoTabla.innerHTML = `<tr><td colspan="6" class="text-center loading">Buscando...</td></tr>`;
+
+      try {
+        // IMPORTANTE: Ajuste de nombres de columnas y JOIN
+        const { data: resultados, error } = await supabase
+          .from('productos')
+          .select('*, tipos_producto(nombre)')
+          .ilike('nombreProducto', `%${termino}%`)
+          .order('ProductoID', { ascending: false });
+
+        if (error) throw error;
+
+        if (!resultados || resultados.length === 0) {
+          cuerpoTabla.innerHTML = `<tr><td colspan="6" class="text-center loading">No se encontró "${termino}"</td></tr>`;
+          return;
+        }
+
+        cuerpoTabla.innerHTML = resultados.map(p => `
+          <tr>
+            <td>#${p.ProductoID}</td>
+            <td><strong>${p.nombreProducto}</strong></td>
+            <td><span class="badge">${p.tipos_producto?.nombre || 'S/N'}</span></td>
+            <td>${p.cantidadProducto}</td>
+            <td>${formatPrice(p.precioProducto)}</td>
+            <td>
+              <button class="btn-seleccionar"
+                      onclick="irAEditar(${p.ProductoID})">
+                Seleccionar
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+        cuerpoTabla.innerHTML = `<tr><td colspan="6" class="text-center message error" style="display:table-cell;">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Función global para redireccionar
+    window.irAEditar = (id) => {
+      window.location.href = `formularioEditar.html?id=${id}`;
+    };
+  </script>
+</body>
+</html>
