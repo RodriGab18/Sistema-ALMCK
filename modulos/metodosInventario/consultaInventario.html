@@ -32,9 +32,10 @@
   </footer>
 
   <script type="module">
-    import { supabase } from '../../supabaseClient.js';
+    // 1. IMPORTANTE: Cambiar el nombre del módulo importado
+    import { dbInventario } from '../../supabaseClient.js';
 
-    // 1. Formateo de moneda (Ajustado a Quetzales si estás en Guatemala)
+    // 1. Formateo de moneda
     function formatPrice(price) {
       return new Intl.NumberFormat('es-GT', {
         style: 'currency',
@@ -42,7 +43,7 @@
       }).format(price);
     }
 
-    // 2. Emojis basados en el nombre que viene de la tabla relacionada
+    // 2. Emojis basados en el nombre
     function getTipoEmoji(tipoNombre) {
       const emojis = {
         'Ropa hombre': '👔',
@@ -56,14 +57,14 @@
       return emojis[tipoNombre] || '📦';
     }
 
-    // 3. Cargar productos con JOIN a tipos_producto
+    // 3. Cargar productos
     async function cargarProductos(searchTerm = '') {
       const container = document.getElementById('productosList');
       container.innerHTML = '<div class="loading">⏳ Buscando...</div>';
 
       try {
-        // Hacemos un SELECT relacional para traer el nombre del tipo
-        let query = supabase
+        // 2. CAMBIO CLAVE: Usar dbInventario en lugar de supabase
+        let query = dbInventario
           .from('productos')
           .select(`
             *,
@@ -130,7 +131,8 @@
     // 4. Eliminar Producto
     window.eliminarP = async (id, nombre) => {
       if (confirm(`¿Eliminar definitivamente "${nombre}"?`)) {
-        const { error } = await supabase.from('productos').delete().eq('ProductoID', id);
+        // 3. TAMBIÉN AQUÍ: Usar dbInventario
+        const { error } = await dbInventario.from('productos').delete().eq('ProductoID', id);
         if (error) alert("Error: " + error.message);
         else {
           alert("Eliminado");

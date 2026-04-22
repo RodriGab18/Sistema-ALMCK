@@ -3,20 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Inventario</title>
+  <title>Inventario - Sistema ALMCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <!-- HEADER -->
     <header class="header">
       <div class="logo-box">
-        <img src="../recursos/logoALMCK.jpeg" width="100">
+        <img src="../recursos/logoALMCK.jpeg" width="100" alt="Logo">
       </div>
 
       <nav class="header-icons">
-        <!-- Perfil -->
         <button class="icon-btn" title="Perfil">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="7" r="4"/>
@@ -24,7 +22,6 @@
           </svg>
         </button>
 
-        <!-- Configuración -->
         <button class="icon-btn" title="Configuración">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"/>
@@ -34,59 +31,48 @@
       </nav>
     </header>
 
-    <!-- MAIN ACTIONS -->
-    <main class="main-content">
-      <div class="actions-grid">
+      <main class="main-content">
+        <div class="actions-grid">
+          <a class="action-btn" href="metodosInventario/consultaInventario.html">
+            <span style="font-size: 3rem;">📋</span>
+              Consultar Inventario
+            </a>
 
-        <a class="action-btn action-btn--link" href="metodosInventario/consultaInventario.html">
-          Consultar Inventario
-        </a>
+          <a class="action-btn" href="metodosInventario/agregarProducto.html">
+            <span style="font-size: 3rem;">➕</span>
+              Agregar Producto
+          </a>
+        </div>
+      </main>
 
-        <a class="action-btn action-btn--link" href="metodosInventario/agregarProducto.html">
-          Agregar Producto
-        </a>
-
-        <a class="action-btn action-btn--link" href="metodosInventario/buscarProducto.html">
-          Modificar Producto
-        </a>
-      </div>
-    </main>
-
-    <!-- FOOTER -->
     <footer class="footer">
         <a class="nav-pill nav-pill--back" href="../index.html">
             <span class="nav-pill__icon">&#8592;</span>
-            Regresar
+            Regresar al Menú Principal
         </a>
     </footer>
 
-
-     <script type="module">
-    import { supabase } from '../js/supabaseClient.js';
-    
-    // Verificar conexión con la base de datos
-    async function testConnection() {
-      try {
-        const { data, error } = await supabase
-          .from('productos')
-          .select('count', { count: 'exact', head: true });
-        
-        if (error) {
-          console.error('❌ Error de conexión:', error);
-          console.warn('Verifica que:');
-          console.warn('1. Las credenciales de Supabase sean correctas');
-          console.warn('2. El schema "Inventario" exista');
-          console.warn('3. La tabla "productos" exista');
-        } else {
-          console.log('✅ Conexión exitosa con Supabase');
-          console.log('📊 Base de datos lista para usar');
+    <script type="module">
+      // Importamos el cliente específico para inventario
+      import { dbInventario } from '../supabaseClient.js';
+      
+      async function testConnection() {
+        try {
+          const { count, error } = await dbInventario
+            .from('productos')
+            .select('*', { count: 'exact', head: true });
+          
+          if (error) {
+            console.error('❌ Error de conexión:', error.message);
+          } else {
+            console.log('✅ Conexión exitosa. Productos registrados:', count);
+          }
+        } catch (error) {
+          console.error('❌ Fallo crítico:', error);
         }
-      } catch (error) {
-        console.error('❌ Error:', error);
       }
-    }
-    
-    testConnection();
-  </script>
+      
+      testConnection();
+    </script>
 </body>
 </html>

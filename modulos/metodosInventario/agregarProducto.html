@@ -69,99 +69,97 @@
   </main>
 
   <footer class="form-footer">
-    <button>
-     <a class="btn-salir" href="../inventario.html">Regresar</a>
+  <button>
+    <a class="btn-salir" href="../inventario.html">Regresar</a>
     </button>
   </footer>
 
-  <script type="module">
-    import { supabase, testSupabaseConnection } from '../../supabaseClient.js';
+    <script type="module">
+      // 1. IMPORTANTE: Importar dbInventario Y la función de prueba
+      import { dbInventario, testSupabaseConnection } from '../../supabaseClient.js';
 
-    const form = document.getElementById('productoForm');
-    const messageDiv = document.getElementById('message');
-    const connectionStatus = document.getElementById('connectionStatus');
-    const submitBtn = document.getElementById('submitBtn');
+      const form = document.getElementById('productoForm');
+      const messageDiv = document.getElementById('message');
+      const connectionStatus = document.getElementById('connectionStatus');
+      const submitBtn = document.getElementById('submitBtn');
 
-    function showMessage(text, type) {
-      messageDiv.textContent = text;
-      messageDiv.className = `message ${type}`;
-      messageDiv.style.display = 'block';
-      
-      // No ocultar si es error crítico, para que el usuario pueda leerlo
-      if(type === 'success') {
-        setTimeout(() => { messageDiv.style.display = 'none'; }, 4000);
-      }
-    }
+      function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
 
-    // Verificar conexión al cargar
-    async function checkConnection() {
-      const isConnected = await testSupabaseConnection();
-      if (isConnected) {
-        connectionStatus.textContent = '✅ Conectado a Supabase (Esquema: inventario)';
-        connectionStatus.style.color = '#10b981';
-      } else {
-        connectionStatus.textContent = '❌ Error de conexión. Revisa Exposed Schemas.';
-        connectionStatus.style.color = '#ef4444';
-        submitBtn.disabled = true;
-      }
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      // Obtener y limpiar valores
-      const nombre = document.getElementById('nombre').value.trim();
-      const cantidad = parseInt(document.getElementById('cantidad').value);
-      const tipoId = parseInt(document.getElementById('tipo').value);
-      const precio = parseFloat(document.getElementById('precio').value);
-      const caducidad = document.getElementById('caducidad').value || null;
-      const disponible = document.getElementById('disponible').checked;
-
-      // Mostrar estado de carga
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Guardando...';
-      submitBtn.disabled = true;
-
-      try {
-        // Objeto mapeado EXACTAMENTE a las columnas de tu tabla "inventario.productos"
-        const nuevoProducto = {
-          nombreProducto: nombre,
-          precioProducto: precio,
-          cantidadProducto: cantidad,
-          TipoProducto: tipoId,
-          Disponiblilidad: disponible,
-          Caducidad: caducidad
-        };
-
-        const { data, error } = await supabase
-          .from('productos')
-          .insert([nuevoProducto])
-          .select();
-
-        if (error) {
-          console.error('Error Supabase:', error);
-          // Si el error es 405, es por la configuración de Exposed Schemas en el dashboard
-          const errorMsg = error.code === '405' ? 'Error 405: El esquema "inventario" no está expuesto en Settings > API' : error.message;
-          showMessage('❌ Error: ' + errorMsg, 'error');
-        } else {
-          showMessage('✅ Producto guardado exitosamente en el inventario', 'success');
-          form.reset();
-          document.getElementById('disponible').checked = true;
-          
-          setTimeout(() => {
-            window.location.href = '../inventario.html';
-          }, 2000);
+        if(type === 'success') {
+          setTimeout(() => { messageDiv.style.display = 'none'; }, 4000);
         }
-      } catch (error) {
-        console.error('Error inesperado:', error);
-        showMessage('❌ Error inesperado de conexión.', 'error');
-      } finally {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
       }
-    });
 
-    checkConnection();
+      // Verificar conexión al cargar
+      async function checkConnection() {
+        // Ahora sí funcionará porque está importada arriba
+        const isConnected = await testSupabaseConnection(); 
+        if (isConnected) {
+          connectionStatus.textContent = '✅ Conectado a Supabase (Esquema: inventario)';
+          connectionStatus.style.color = '#10b981';
+        } else {
+          connectionStatus.textContent = '❌ Error de conexión. Revisa Exposed Schemas.';
+          connectionStatus.style.color = '#ef4444';
+          submitBtn.disabled = true;
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nombre = document.getElementById('nombre').value.trim();
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+        const tipoId = parseInt(document.getElementById('tipo').value);
+        const precio = parseFloat(document.getElementById('precio').value);
+        const caducidad = document.getElementById('caducidad').value || null;
+        const disponible = document.getElementById('disponible').checked;
+
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Guardando...';
+        submitBtn.disabled = true;
+
+        try {
+          const nuevoProducto = {
+            nombreProducto: nombre,
+            precioProducto: precio,
+            cantidadProducto: cantidad,
+            TipoProducto: tipoId,
+            Disponiblilidad: disponible,
+            Caducidad: caducidad
+          };
+
+          // 2. CAMBIO CLAVE: Usar dbInventario en lugar de supabase
+          const { data, error } = await dbInventario
+            .from('productos')
+            .insert([nuevoProducto])
+            .select();
+
+          if (error) {
+            console.error('Error Supabase:', error);
+            const errorMsg = error.code === '405' ? 'Error 405: El esquema "inventario" no está expuesto' : error.message;
+            showMessage('❌ Error: ' + errorMsg, 'error');
+          } else {
+            showMessage('✅ Producto guardado exitosamente', 'success');
+            form.reset();
+            document.getElementById('disponible').checked = true;
+
+            setTimeout(() => {
+              window.location.href = '../inventario.html';
+            }, 2000);
+          }
+        } catch (error) {
+          console.error('Error inesperado:', error);
+          showMessage('❌ Error inesperado de conexión.', 'error');
+        } finally {
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      });
+
+      checkConnection();
   </script>
   
 </body>
