@@ -1,0 +1,4 @@
+config.js
+supabaseClient.js
+.env
+.DS_Store

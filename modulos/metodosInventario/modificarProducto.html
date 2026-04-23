@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modificar Producto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estiloInventario.css">
+</head>
+<body>
+  <header class="header centered-header">
+    <div class="logo-box">
+      <img src="../../recursos/logoALMCK.jpeg" width="100" alt="Logo">
+    </div>
+  </header>
+
+  <main>
+    <div class="form-container">
+      <h1>✏️ Modificar Producto</h1>
+
+      <div id="loading" class="loading">Cargando datos del producto...</div>
+
+      <form id="productoForm" style="display: none;">
+        <div class="form-group">
+          <label>ID del producto</label>
+          <span class="id-badge" id="idDisplay">—</span>
+          <input type="hidden" id="productoId">
+        </div>
+
+        <div class="form-group">
+          <label for="nombre">Nombre del Producto *</label>
+          <input type="text" id="nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cantidad">Cantidad *</label>
+          <input type="number" id="cantidad" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="tipo">Tipo de Producto *</label>
+          <select id="tipo" required>
+            <option value="">Seleccione un tipo</option>
+            <option value="Ropa niño">👕 Ropa niño</option>
+            <option value="Ropa niña">👗 Ropa niña</option>
+            <option value="Ropa hombre">👔 Ropa hombre</option>
+            <option value="Ropa mujer">💃 Ropa mujer</option>
+            <option value="Perfumes">🌸 Perfumes</option>
+            <option value="Alimento">🍎 Alimento</option>
+            <option value="Reloj">⌚ Reloj</option>
+            <option value="Maquillaje">💄 Maquillaje</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="precio">Precio *</label>
+          <input type="number" id="precio" step="0.01" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="caducidad">Fecha de Caducidad</label>
+          <input type="date" id="caducidad">
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="disponible">
+            Producto Disponible
+          </label>
+        </div>
+
+        <button type="submit" class="btn-action btn-action--success btn-action--full">Actualizar Producto</button>
+        <button type="button" id="btnEliminar" class="btn-action btn-action--danger btn-action--full btn-action--danger-margin" style="display:none;" onclick="eliminarProducto()">
+          Eliminar Producto
+        </button>
+      </form>
+
+      <div id="message" class="message"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <button class="btn-pill" type="button" onclick="window.location.href='consultaInventario.html'">
+      ← Regresar
+    </button>
+  </footer>
+
+  <script src="../../js/permisos.js"></script>
+  <script type="module">
+    import { supabase } from '../../supabaseClient.js';
+
+    const P = window.Permisos;
+    if (!P.puedeModificar()) {
+      P.bloquearAccion('Modificar Producto');
+      window.location.href = '../inventario.html';
+    }
+
+    if (P.puedeEliminar()) {
+      document.getElementById('btnEliminar').style.display = '';
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productoId = urlParams.get('id');
+
+    if (!productoId) {
+      alert('No se especificó un producto');
+      window.location.href = 'buscarProducto.html';
+    }
+
+    let productoData = null;
+
+    function showMessage(text, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = text;
+      messageDiv.className = `message ${type}`;
+      messageDiv.style.display = 'block';
+      setTimeout(() => {
+        messageDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    async function cargarProducto() {
+      try {
+        const { data, error } = await supabase
+          .from('productos')
+          .select('*')
+          .eq('ProductoID', productoId)
+          .single();
+
+        if (error) {
+          console.error('Error:', error);
+          alert('Error al cargar el producto: ' + error.message);
+          window.location.href = 'consultaInventario.html';
+          return;
+        }
+
+        if (data) {
+          productoData = data;
+          document.getElementById('idDisplay').textContent = '#' + data.ProductoID;
+          document.getElementById('productoId').value = data.ProductoID;
+          document.getElementById('nombre').value = data.NombreProducto;
+          document.getElementById('cantidad').value = data.Cantidad;
+          document.getElementById('tipo').value = data.TipoProducto;
+          document.getElementById('precio').value = data.Precio;
+          document.getElementById('caducidad').value = data.Caducidad || '';
+          document.getElementById('disponible').checked = data.Disponible;
+
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('productoForm').style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error de conexión con la base de datos');
+        window.location.href = 'consultaInventario.html';
+      }
+    }
+
+    const form = document.getElementById('productoForm');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = parseInt(document.getElementById('productoId').value, 10);
+      const nombre = document.getElementById('nombre').value.trim();
+      const cantidad = parseInt(document.getElementById('cantidad').value, 10);
+      const tipo = document.getElementById('tipo').value;
+      const precio = parseFloat(document.getElementById('precio').value);
+      const caducidad = document.getElementById('caducidad').value || null;
+      const disponible = document.getElementById('disponible').checked;
+
+      if (!nombre) {
+        showMessage('Por favor ingrese el nombre del producto', 'error');
+        return;
+      }
+      if (isNaN(cantidad) || cantidad < 0) {
+        showMessage('La cantidad debe ser un número válido mayor o igual a 0', 'error');
+        return;
+      }
+      if (!tipo) {
+        showMessage('Por favor seleccione un tipo de producto', 'error');
+        return;
+      }
+      if (isNaN(precio) || precio <= 0) {
+        showMessage('El precio debe ser mayor a 0', 'error');
+        return;
+      }
+
+      const submitBtn = form.querySelector('.btn-action--success');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Actualizando...';
+      submitBtn.disabled = true;
+
+      try {
+        const { error } = await supabase
+          .from('productos')
+          .update({
+            NombreProducto: nombre,
+            Cantidad: cantidad,
+            TipoProducto: tipo,
+            Precio: precio,
+            Caducidad: caducidad,
+            Disponible: disponible
+          })
+          .eq('ProductoID', id);
+
+        if (error) {
+          showMessage('Error al actualizar: ' + error.message, 'error');
+        } else {
+          showMessage('✅ Producto actualizado exitosamente', 'success');
+          setTimeout(() => {
+            window.location.href = 'consultaInventario.html';
+          }, 2000);
+        }
+      } catch (err) {
+        showMessage('Error de conexión con la base de datos', 'error');
+      } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    window.eliminarProducto = async function() {
+      if (!productoData) return;
+      if (!P.verificarOBloquear(P.NIVELES.ELIMINAR, 'Eliminar Producto')) return;
+
+      if (confirm(`¿Estás seguro de eliminar "${productoData.NombreProducto}" permanentemente?`)) {
+        const id = parseInt(document.getElementById('productoId').value, 10);
+
+        const { error } = await supabase
+          .from('productos')
+          .delete()
+          .eq('ProductoID', id);
+
+        if (error) {
+          showMessage('Error al eliminar: ' + error.message, 'error');
+        } else {
+          showMessage('✅ Producto eliminado exitosamente', 'success');
+          setTimeout(() => {
+            window.location.href = 'consultaInventario.html';
+          }, 2000);
+        }
+      }
+    };
+
+    cargarProducto();
+  </script>
+</body>
+</html>

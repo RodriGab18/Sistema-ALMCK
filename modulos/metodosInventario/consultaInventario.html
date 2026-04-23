@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultar Inventario - Sistema ALMCK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estiloInventario.css">
+</head>
+<body>
+  <header class="header centered-header">
+    <img src="../../recursos/logoALMCK.jpeg" width="80" alt="Logo">
+  </header>
+
+  <main class="main-container">
+    <h1>📋 Inventario de Productos</h1>
+    
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre..." autocomplete="off">
+      <button onclick="buscarProductos()" class="btn-action btn-action--accent">Buscar</button>
+      <button onclick="cargarTodos()" class="btn-action btn-action--secondary">Mostrar Todos</button>
+    </div>
+
+    <div id="productosList">
+      <div class="loading">Cargando productos...</div>
+    </div>
+  </main>
+
+  <footer class="centered-footer">
+    <button class="btn-pill" onclick="window.location.href='../inventario.html'">← Regresar</button>
+  </footer>
+
+  <script type="module">
+    import { dbInventario } from '../../supabaseClient.js';
+
+    function formatPrice(price) {
+      return new Intl.NumberFormat('es-GT', {
+        style: 'currency',
+        currency: 'GTQ'
+      }).format(price);
+    }
+
+    function getTipoEmoji(tipoNombre) {
+      const emojis = {
+        'Ropa hombre': '👔', 'Ropa mujer': '👗', 'Perfumes': '🌸',
+        'Alimento': '🍎', 'Reloj': '⌚', 'Maquillaje': '💄', 'Accesorios': '👜'
+      };
+      return emojis[tipoNombre] || '📦';
+    }
+
+    async function cargarProductos(searchTerm = '') {
+      const container = document.getElementById('productosList');
+      container.innerHTML = '<div class="loading">⏳ Buscando...</div>';
+
+      try {
+        let query = dbInventario
+          .from('productos')
+          .select(`*, tipos_producto ( nombre )`)
+          .eq('activo', true); // <--- SOLO PRODUCTOS VIGENTES
+
+        if (searchTerm) {
+          query = query.ilike('nombreProducto', `%${searchTerm}%`);
+        }
+
+        const { data, error } = await query.order('ProductoID', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          container.innerHTML = '<div class="loading">📦 No hay productos activos.</div>';
+          return;
+        }
+
+        const html = `
+          <table class="productos-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.map(p => `
+                <tr>
+                  <td>#${p.ProductoID}</td>
+                  <td><strong>${p.nombreProducto}</strong></td>
+                  <td>${p.cantidadProducto}</td>
+                  <td>
+                    <span class="tipo-badge">
+                      ${getTipoEmoji(p.tipos_producto?.nombre)} ${p.tipos_producto?.nombre || 'S/N'}
+                    </span>
+                  </td>
+                  <td>${formatPrice(p.precioProducto)}</td>
+                  <td>
+                    <a href="modificarProducto.html?id=${p.ProductoID}" class="btn-editar">✏️</a>
+                    <button class="btn-eliminar" onclick="window.eliminarProducto(${p.ProductoID})">🗑️</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        container.innerHTML = html;
+
+      } catch (err) {
+        container.innerHTML = `<div class="message error" style="display:block;">Error: ${err.message}</div>`;
+      }
+    }
+
+    // Función de eliminación (Borrado Lógico)
+    window.eliminarProducto = async (id) => {
+      if(confirm("¿Deseas dar de baja este producto? No se borrará de las ventas antiguas.")) {
+          try {
+              const { error } = await dbInventario
+                  .from('productos') 
+                  .update({ activo: false })
+                  .eq('ProductoID', id); // Usamos ProductoID según tu esquema
+
+              if (error) throw error;
+
+              alert("✅ Producto desactivado con éxito.");
+              cargarProductos(); 
+          } catch (err) {
+              alert("❌ Error: " + err.message);
+          }
+      }
+    };
+
+    window.buscarProductos = () => {
+      const term = document.getElementById('searchInput').value;
+      cargarProductos(term);
+    };
+
+    window.cargarTodos = () => {
+      document.getElementById('searchInput').value = '';
+      cargarProductos();
+    };
+
+    // Escuchar Enter en el buscador
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') window.buscarProductos();
+    });
+
+    cargarProductos();
+  </script>
+</body>
+</html>
