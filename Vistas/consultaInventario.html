@@ -6,11 +6,12 @@
   <title>Consultar Inventario - Sistema ALMCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="estiloInventario.css">
+  <link rel="stylesheet" href="../estilos/inventario.css">
+  <script src="../js/authGuard.js"></script>
 </head>
 <body>
   <header class="header centered-header">
-    <img src="../../recursos/logoALMCK.jpeg" width="80" alt="Logo">
+    <img src="../recursos/logoALMCK.jpeg" width="80" alt="Logo">
   </header>
 
   <main class="main-container">
@@ -28,11 +29,11 @@
   </main>
 
   <footer class="centered-footer">
-    <button class="btn-pill" onclick="window.location.href='../inventario.html'">← Regresar</button>
+    <button class="btn-pill" onclick="window.location.href='inventario.html'">← Regresar</button>
   </footer>
 
   <script type="module">
-    import { dbInventario } from '../../supabaseClient.js';
+    import { dbInventario } from '../js/supabaseClient.js';
 
     function formatPrice(price) {
       return new Intl.NumberFormat('es-GT', {

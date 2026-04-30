@@ -6,22 +6,9 @@
   <title>Nueva Venta - Sistema ALMCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="estiloInventario.css">
-  <style>
-    /* Ajustes específicos para la interfaz de ventas */
-    .sales-grid { display: grid; grid-template-columns: 1fr 350px; gap: 20px; margin-top: 20px; }
-    .cart-container { background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #eee; }
-    .product-search-results { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px; background: white;}
-    .search-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
-    .search-item:hover { background: #f0f0f0; }
-    .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #ccc; }
-    .total-section { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin-top: 20px; text-align: right; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
-    select, input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
-    .btn-pay { width: 100%; padding: 15px; background: #2ecc71; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-    .btn-pay:disabled { background: #ccc; }
-  </style>
+  
+  <link rel="stylesheet" href="../estilos/inventario.css">
+  <script src="../js/authGuard.js"></script>
 </head>
 <body>
   <header class="header centered-header">
@@ -63,7 +50,7 @@
         <div class="total-section" id="totalDisplay">Total: Q 0.00</div>
 
         <div class="form-group" style="margin-top: 20px;">
-          <label><input type="checkbox" id="checkDeuda"> Es venta al crédito (Deuda)</label>
+          <label><input type="checkbox" id="checkDeuda" style="width: auto; margin-right: 8px;"> Es venta al crédito (Deuda)</label>
         </div>
 
         <button id="btnFinalizar" class="btn-pay" disabled>Finalizar Venta</button>
@@ -76,26 +63,35 @@
   </footer>
 
   <script type="module">
-    import { dbInventario, dbPersonas, dbVentas } from '../../supabaseClient.js';
+    // Asegúrate de que la ruta a supabaseClient sea la correcta según tus carpetas
+    import { dbInventario, dbPersonas, dbVentas } from '../js/supabaseClient.js';
 
     let carrito = [];
     let totalVenta = 0;
 
     // --- CARGA INICIAL ---
     async function inicializar() {
-      // Cargar Empleados
-      const { data: empleados } = await dbPersonas.from('empleados').select('id, nombre').eq('activo', true);
-      empleados.forEach(e => {
-        const opt = new Option(e.nombre, e.id);
-        document.getElementById('selectEmpleado').add(opt);
-      });
+      try {
+        // Cargar Empleados
+        const { data: empleados, error: errEmp } = await dbPersonas.from('empleados').select('id, nombre_empleado'); // Ajusta "nombre_empleado" si tu columna se llama distinto
+        if(empleados){
+            empleados.forEach(e => {
+              const opt = new Option(e.nombre_empleado || e.nombre, e.id);
+              document.getElementById('selectEmpleado').add(opt);
+            });
+        }
 
-      // Cargar Clientes
-      const { data: clientes } = await dbPersonas.from('clientes').select('id, nombre');
-      clientes.forEach(c => {
-        const opt = new Option(c.nombre, c.id);
-        document.getElementById('selectCliente').add(opt);
-      });
+        // Cargar Clientes
+        const { data: clientes, error: errCli } = await dbPersonas.from('clientes').select('id, nombre'); // Ajusta si la columna se llama distinto
+        if(clientes){
+            clientes.forEach(c => {
+              const opt = new Option(c.nombre, c.id);
+              document.getElementById('selectCliente').add(opt);
+            });
+        }
+      } catch (e) {
+        console.error("Error al inicializar:", e);
+      }
     }
 
     // --- BUSCADOR DE PRODUCTOS ---
@@ -105,20 +101,24 @@
       
       if (term.length < 2) { resultsDiv.style.display = 'none'; return; }
 
-      const { data: prods } = await dbInventario
+      // CORRECCIÓN: Nombres exactos de las columnas en tu base de datos (NombreProducto, Cantidad)
+      const { data: prods, error } = await dbInventario
         .from('productos')
         .select('*')
-        .ilike('nombreProducto', `%${term}%`)
-        .gt('cantidadProducto', 0)
+        .ilike('NombreProducto', `%${term}%`)
+        .gt('Cantidad', 0)
         .limit(5);
 
+      if (error) console.error("Error buscando producto:", error);
+
       resultsDiv.innerHTML = '';
-      if (prods.length > 0) {
+      if (prods && prods.length > 0) {
         resultsDiv.style.display = 'block';
         prods.forEach(p => {
           const div = document.createElement('div');
           div.className = 'search-item';
-          div.innerHTML = `<span>${p.nombreProducto}</span> <b>Q${p.precioProducto}</b>`;
+          // CORRECCIÓN: p.NombreProducto y p.Precio
+          div.innerHTML = `<span>${p.NombreProducto}</span> <b>Q${p.Precio.toFixed(2)}</b>`;
           div.onclick = () => agregarAlCarrito(p);
           resultsDiv.appendChild(div);
         });
@@ -128,7 +128,12 @@
     function agregarAlCarrito(p) {
       const existe = carrito.find(item => item.ProductoID === p.ProductoID);
       if (existe) {
-        existe.cantidad++;
+        // Validar que no sobrepase el stock disponible en la base de datos
+        if(existe.cantidad < p.Cantidad) {
+            existe.cantidad++;
+        } else {
+            alert(`Solo hay ${p.Cantidad} unidades disponibles de este producto.`);
+        }
       } else {
         carrito.push({ ...p, cantidad: 1 });
       }
@@ -149,12 +154,13 @@
       } else {
         btn.disabled = false;
         carrito.forEach((item, index) => {
-          totalVenta += (item.precioProducto * item.cantidad);
+          // CORRECCIÓN: item.Precio
+          totalVenta += (item.Precio * item.cantidad);
           const div = document.createElement('div');
           div.className = 'cart-item';
           div.innerHTML = `
-            <span>${item.nombreProducto} (x${item.cantidad})</span>
-            <span>Q${(item.precioProducto * item.cantidad).toFixed(2)}</span>
+            <span>${item.NombreProducto} (x${item.cantidad})</span>
+            <span>Q${(item.Precio * item.cantidad).toFixed(2)}</span>
           `;
           container.appendChild(div);
         });
@@ -174,6 +180,9 @@
       }
 
       try {
+        document.getElementById('btnFinalizar').disabled = true;
+        document.getElementById('btnFinalizar').innerText = 'Procesando...';
+
         // 1. Crear la Venta
         const { data: venta, error: eVenta } = await dbVentas.from('ventas').insert({
           cliente_id: clienteId,
@@ -190,29 +199,33 @@
             venta_id: venta.id,
             producto_id: item.ProductoID,
             cantidad: item.cantidad,
-            precio_unitario: item.precioProducto
+            precio_unitario: item.Precio // CORRECCIÓN: item.Precio
           });
 
-          // Descontar stock
+          // Descontar stock (CORRECCIÓN: item.Cantidad)
           await dbInventario.from('productos')
-            .update({ cantidadProducto: item.cantidadProducto - item.cantidad })
+            .update({ Cantidad: item.Cantidad - item.cantidad })
             .eq('ProductoID', item.ProductoID);
         }
 
-        // 3. Actualizar Cliente
+        // 3. Actualizar Cliente (Asegúrate de que estas columnas existan en tu tabla 'clientes')
         const { data: cData } = await dbPersonas.from('clientes').select('*').eq('id', clienteId).single();
-        const updates = {
-          contador_compras: (cData.contador_compras || 0) + 1,
-          monto_deuda: esDeuda ? (cData.monto_deuda || 0) + totalVenta : cData.monto_deuda,
-          estado_deuda: esDeuda ? true : cData.estado_deuda
-        };
-        await dbPersonas.from('clientes').update(updates).eq('id', clienteId);
+        if (cData) {
+            const updates = {
+              contador_compras: (cData.contador_compras || 0) + 1,
+              monto_deuda: esDeuda ? (cData.monto_deuda || 0) + totalVenta : cData.monto_deuda,
+              estado_deuda: esDeuda ? true : cData.estado_deuda
+            };
+            await dbPersonas.from('clientes').update(updates).eq('id', clienteId);
+        }
 
         alert("✅ Venta realizada con éxito");
         location.reload();
 
       } catch (err) {
         alert("Error: " + err.message);
+        document.getElementById('btnFinalizar').disabled = false;
+        document.getElementById('btnFinalizar').innerText = 'Finalizar Venta';
       }
     };
 

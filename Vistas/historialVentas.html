@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Historial de Ventas - Sistema ALMCK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../estilos/gestion.css" />
+    <script src="../js/authGuard.js"></script>
+    <style>
+        /* Estilos adaptados para la tabla y filtros del historial */
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters-container input {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #eee;
+            font-family: 'DM Sans';
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'DM Sans';
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 2px solid #eee;
+            color: var(--icon-color);
+            font-family: 'Syne';
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-credito {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .badge-efectivo {
+            background: #d1fae5;
+            color: #10b981;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo-box">
+            <img src="../recursos/logoALMCK.jpeg" width="100" alt="Logo">
+        </div>
+        <h1 style="font-family: 'Syne'; color: var(--icon-color);">📜 Historial de Ventas</h1>
+    </header>
+
+    <main class="main-content" style="flex-direction: column; gap: 20px;">
+
+        <div class="filters-container">
+            <input type="date" id="f_fecha" title="Filtrar por fecha exacta">
+            <input type="text" id="f_cliente" placeholder="🔍 Buscar por cliente...">
+            <input type="text" id="f_vendedor" placeholder="🔍 Buscar por vendedor...">
+            <button class="action-btn" style="padding: 10px 20px; font-size: 1rem; width: auto;"
+                onclick="aplicarFiltros()">Aplicar Filtros</button>
+            <button class="nav-pill" style="border:none; cursor:pointer;" onclick="limpiarFiltros()">Limpiar</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Venta</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
+                        <th>Total</th>
+                        <th>Método Pago</th>
+                    </tr>
+                </thead>
+                <tbody id="listaVentas">
+                    <tr>
+                        <td colspan="6" style="text-align:center;">Cargando registros...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="footer" style="margin-top: 40px;">
+        <a class="nav-pill nav-pill--back" href="Gestión.html">← Regresar a Gestión</a>
+    </footer>
+
+    <script type="module">
+        import { dbVentas, dbPersonas } from '../js/supabaseClient.js';
+
+        const formatter = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
+        let todasLasVentas = [];
+
+        // Diccionarios para cruzar datos sin hacer JOINs complejos entre esquemas
+        let clientesMap = {};
+        let empleadosMap = {};
+
+        async function inicializarDatos() {
+            try {
+                // 1. Cargar Clientes
+                const { data: clientes } = await dbPersonas.from('clientes').select('id, nombre');
+                if (clientes) clientes.forEach(c => clientesMap[c.id] = c.nombre);
+
+                // 2. Cargar Empleados
+                const { data: empleados } = await dbPersonas.from('empleados').select('id, nombre, nombre_empleado');
+                if (empleados) empleados.forEach(e => empleadosMap[e.id] = e.nombre_empleado || e.nombre);
+
+                // 3. Cargar Ventas
+                const { data: ventas, error } = await dbVentas.from('ventas').select('*').order('id', { ascending: false });
+                if (error) throw error;
+
+                // 4. Mapear datos completos
+                todasLasVentas = ventas.map(v => ({
+                    ...v,
+                    clienteNombre: clientesMap[v.cliente_id] || 'Desconocido / Eliminado',
+                    empleadoNombre: empleadosMap[v.empleado_id] || 'Desconocido / Eliminado'
+                }));
+
+                renderizarVentas(todasLasVentas);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('listaVentas').innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Error al cargar datos: ${error.message}</td></tr>`;
+            }
+        }
+
+        function renderizarVentas(datos) {
+            const tbody = document.getElementById('listaVentas');
+            if (datos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No se encontraron ventas con esos filtros.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = datos.map(v => {
+                // Asumimos que Supabase guarda un 'created_at'. Si usaste otro nombre para la fecha, cámbialo aquí.
+                const fechaStr = v.created_at ? new Date(v.created_at).toLocaleDateString('es-GT') : 'Sin fecha';
+                const claseBadge = (v.metodo_pago === 'Crédito') ? 'badge-credito' : 'badge-efectivo';
+
+                return `
+            <tr>
+              <td><strong>#${v.id}</strong></td>
+              <td>${fechaStr}</td>
+              <td>${v.clienteNombre}</td>
+              <td>${v.empleadoNombre}</td>
+              <td style="font-weight: bold;">${formatter.format(v.total)}</td>
+              <td><span class="badge ${claseBadge}">${v.metodo_pago || 'Efectivo'}</span></td>
+            </tr>
+          `;
+            }).join('');
+        }
+
+        window.aplicarFiltros = () => {
+            const fechaSelect = document.getElementById('f_fecha').value;
+            const txtCliente = document.getElementById('f_cliente').value.toLowerCase();
+            const txtVendedor = document.getElementById('f_vendedor').value.toLowerCase();
+
+            const filtradas = todasLasVentas.filter(v => {
+                // Filtrar Fecha (Convirtiendo la de BD para comparar con el input date)
+                let cumpleFecha = true;
+                if (fechaSelect && v.created_at) {
+                    const fechaVenta = v.created_at.split('T')[0]; // Extrae "YYYY-MM-DD"
+                    cumpleFecha = (fechaVenta === fechaSelect);
+                }
+
+                // Filtrar Textos
+                const cumpleCliente = v.clienteNombre.toLowerCase().includes(txtCliente);
+                const cumpleVendedor = v.empleadoNombre.toLowerCase().includes(txtVendedor);
+
+                return cumpleFecha && cumpleCliente && cumpleVendedor;
+            });
+
+            renderizarVentas(filtradas);
+        };
+
+        window.limpiarFiltros = () => {
+            document.getElementById('f_fecha').value = '';
+            document.getElementById('f_cliente').value = '';
+            document.getElementById('f_vendedor').value = '';
+            renderizarVentas(todasLasVentas);
+        };
+
+        // Ejecutar al cargar la página
+        inicializarDatos();
+    </script>
+</body>
+
+</html>

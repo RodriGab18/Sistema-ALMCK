@@ -1,65 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
+<head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
     <title>Dashboard Empresa</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="styles.css"/>
-    </head>
-    <body>
-    <header>
-        <!-- Logo de la empresa -->
-        <img src="recursos/logoALMCK.jpeg" alt = "Logo de la empresa" width="100"> 
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="principal.css"/>
+    <script src="js/authGuard.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-box">
+            <img src="recursos/logoALMCK.jpeg" alt="Logo de la empresa" width="75" style="border-radius: 12px; display: block;"> 
+        </div>
 
-        <!-- Iconos de configuracion-->
         <div class="header-icons">
-            <!-- Manejo de usuario -->
             <button class="icon-btn" title="Usuario" aria-label="Usuario">
-                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="18" cy="13" r="6" fill="#111"/>
-                <path d="M6 30c0-6.627 5.373-10 12-10s12 3.373 12 10" fill="#111"/>
+                <svg width="26" height="26" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="18" cy="13" r="6" fill="currentColor"/>
+                    <path d="M6 30c0-6.627 5.373-10 12-10s12 3.373 12 10" fill="currentColor"/>
                 </svg>
             </button>
 
-            <!-- Configuracion -->
             <button class="icon-btn" title="Configuración" aria-label="Configuración">
-                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="18" cy="18" r="4.5"/>
-                <path d="M18 4v3M18 29v3M4 18h3M29 18h3
-                        M7.5 7.5l2.1 2.1M26.4 26.4l2.1 2.1
-                        M7.5 28.5l2.1-2.1M26.4 9.6l2.1-2.1"/>
+                <svg width="26" height="26" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="18" cy="18" r="4.5"/>
+                    <path d="M18 4v3M18 29v3M4 18h3M29 18h3 M7.5 7.5l2.1 2.1M26.4 26.4l2.1 2.1 M7.5 28.5l2.1-2.1M26.4 9.6l2.1-2.1"/>
                 </svg>
             </button>
-
-            <!-- Salir-->
-             <button class = "btn-salir" title="Salir" aria-label="Salir" type="button">
-                <a href="incioSesion.html"> Salir </a>
-             </button>
         </div>
     </header>
 
-    <!-- Menu principal-->
-    <main>
-        <!-- Realizar venta-->
-        <button class="card card-venta" >
-            <a  href="modulos/ventas.html" > Realizar venta </a> 
-        </button>
+    <main class="main-content">
+        <div class="actions-grid">
+            <a href="vistas/ventas.html" class="action-btn">
+                <div class="icon-wrapper">🛍️</div>
+                Realizar Venta
+            </a> 
 
-        <!--Acceder al inventario-->
-        <button class="card card-inventario">
-            <a href="modulos/inventario.html"> Inventario </a>
-        </button>
+            <a href="vistas/inventario.html" class="action-btn">
+                <div class="icon-wrapper">📦</div>
+                Inventario
+            </a>
 
-        <!--Acceder al menu de finanzas-->
-        <button class="card card-finanzas">
-            <a href="modulos/Gestión.html"> Gestión</a>
-        </button>
+            <a href="vistas/Gestión.html" class="action-btn" id="btn-gestion">
+                <div class="icon-wrapper">📊</div>
+                Gestión
+            </a>
 
-        <!--Acceder al menu de clientes-->
-        <button class="card card-clientes">
-            <a href="modulos/clientes.html"> Clientes</a>
-        </button>
+            <a href="vistas/clientes.html" class="action-btn">
+                <div class="icon-wrapper">👥</div>
+                Clientes
+            </a>
+        </div>
     </main>
-    </body>
+
+    <a href="#" class="btn-salir" title="Salir" aria-label="Salir" onclick="localStorage.removeItem('usuarioLogueado'); window.location.href='Vistas/incioSesion.html'; return false;">
+        Salir
+    </a>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
 </html>

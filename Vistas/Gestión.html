@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Gestión - ALMCK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../estilos/gestion.css" />
+  <script src="../js/authGuard.js"></script>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo-box">
+      <img src="../recursos/logoALMCK.jpeg" width="100" alt="Logo ALMCK">
+    </div>
+    <h1 style="font-family: 'Syne'; color: var(--icon-color);">Panel de Gestión</h1>
+  </header>
+
+  <!-- Centramos los botones en la pantalla -->
+  <main class="main-content" style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+    <div class="actions-grid" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+
+      <!-- Botón hacia Empleados -->
+      <a class="action-btn" href="empleados.html"
+        style="text-decoration: none; color: inherit; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px;">
+        <span style="font-size: 3.5rem; margin-bottom: 15px;">👥</span>
+        Gestión de Personal
+      </a>
+
+      <!-- Botón hacia Historial de Ventas -->
+      <a class="action-btn" href="historialVentas.html"
+        style="text-decoration: none; color: inherit; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px;">
+        <span style="font-size: 3.5rem; margin-bottom: 15px;">📜</span>
+        Historial de Ventas
+      </a>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <a class="nav-pill nav-pill--back" href="../index.html">← Regresar al Menú Principal</a>
+  </footer>
+</body>
+
+</html>

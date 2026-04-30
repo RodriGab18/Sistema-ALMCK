@@ -1,0 +1,259 @@
+/* ============================================================
+   Importación de Fuentes y Reseteo Base
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap');
+
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
+
+/* ============================================================
+   Variables de Diseño (Paleta Pastel y Tokens)
+   ============================================================ */
+:root {
+  /* Paleta Pastel Suave */
+  --bg-gradient: linear-gradient(135deg, #fef9c3 0%, #f3e8ff 100%);
+  --accent: #ffcce1;         /* Rosa pastel */
+  --accent-hover: #ffb3d1;   /* Rosa pastel un poco más oscuro */
+  --logo-bg: #d1fae5;        /* Verde menta pastel */
+  --icon-color: #5b21b6;     /* Morado profundo para iconos */
+  --text-dark: #4b5563;
+  
+  --radius-btn: 28px;
+  --shadow-soft: 0 15px 35px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 12px 25px rgba(255, 204, 225, 0.4);
+  
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+/* ============================================================
+   Configuración del Body adaptado para Móviles
+   ============================================================ */
+body {
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-gradient);
+  color: var(--text-dark);
+  
+  /* Safe Area Insets: Evita que el contenido quede oculto por el notch o botones de sistema en iOS/Android */
+  padding-top: max(30px, env(safe-area-inset-top));
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-bottom: max(100px, env(safe-area-inset-bottom)); /* Espacio extra para el botón flotante */
+  
+  /* Suavizado de fuentes en móviles */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.logo-box {
+  background: var(--logo-bg);
+  border-radius: 18px;
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(209, 250, 229, 0.6);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logo-box:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+.header-icons {
+  display: flex;
+  gap: 16px;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  cursor: pointer;
+  color: var(--icon-color);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); /* Soporte iOS */
+  -webkit-tap-highlight-color: transparent; /* Quita el cuadro gris nativo en Android/iOS al tocar */
+}
+
+.icon-btn:hover, .icon-btn:active {
+  transform: rotate(10deg) scale(1.1);
+  background: var(--accent);
+}
+
+/* ============================================================
+   MAIN CONTENT & GRID
+   ============================================================ */
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  width: 100%;
+}
+
+/* ============================================================
+   TARJETAS (BOTONES DEL DASHBOARD)
+   ============================================================ */
+.action-btn {
+  /* Efecto Glassmorphism (Cristal) muy estético sobre el gradiente */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  color: var(--icon-color);
+  border-radius: var(--radius-btn);
+  padding: 35px 20px;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  text-decoration: none;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon-wrapper {
+  font-size: 2.2rem;
+  background: white;
+  width: 65px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+  margin-bottom: 5px;
+  transition: transform 0.3s ease;
+}
+
+.action-btn:hover, .action-btn:active {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--accent);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-glow);
+}
+
+.action-btn:hover .icon-wrapper, .action-btn:active .icon-wrapper {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* ============================================================
+   BOTÓN FLOTANTE (SALIR) - Estilo App Nativa
+   ============================================================ */
+.btn-salir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: fixed;
+  /* Respetamos las barras inferiores de los iPhone/Android nuevos */
+  bottom: max(25px, env(safe-area-inset-bottom));
+  right: max(25px, env(safe-area-inset-right));
+  padding: 14px 28px;
+  background: white;
+  color: #ef4444; /* Rojo pastel */
+  border: 2px solid #fecaca;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  z-index: 100;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-salir::before {
+  content: '👋';
+  font-size: 1.1rem;
+  transition: transform 0.2s;
+}
+
+.btn-salir:hover, .btn-salir:active {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.3);
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN (Móviles / Tablets)
+   ============================================================ */
+@media (max-width: 640px) {
+  /* En móviles seguimos manteniendo 2 columnas para que parezca un dashboard de app */
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+  
+  .action-btn {
+    padding: 25px 10px;
+    font-size: 1rem;
+    border-radius: 20px;
+  }
+  
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
+  }
+  
+  .header {
+    margin-bottom: 25px;
+  }
+  
+  .logo-box img {
+    width: 60px;
+  }
+  
+  .icon-btn {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* Pantallas súper pequeñas (ej: iPhone SE viejo) */
+@media (max-width: 360px) {
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+}

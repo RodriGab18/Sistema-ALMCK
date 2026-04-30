@@ -6,7 +6,8 @@
   <title>Modificar Producto</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="estiloInventario.css">
+  <link rel="stylesheet" href="../estilos/ventas.css">
+  <script src="../js/authGuard.js"></script>
 </head>
 <body>
   <header class="header centered-header">
@@ -88,7 +89,7 @@
 
   <script src="../../js/permisos.js"></script>
   <script type="module">
-    import { supabase } from '../../supabaseClient.js';
+    import { dbInventario } from '../js/supabaseClient.js';
 
     const P = window.Permisos;
     if (!P.puedeModificar()) {
@@ -122,7 +123,7 @@
 
     async function cargarProducto() {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await dbInventario
           .from('productos')
           .select('*')
           .eq('ProductoID', productoId)
@@ -192,7 +193,7 @@
       submitBtn.disabled = true;
 
       try {
-        const { error } = await supabase
+        const { error } = await dbInventario
           .from('productos')
           .update({
             NombreProducto: nombre,
@@ -227,7 +228,7 @@
       if (confirm(`¿Estás seguro de eliminar "${productoData.NombreProducto}" permanentemente?`)) {
         const id = parseInt(document.getElementById('productoId').value, 10);
 
-        const { error } = await supabase
+        const { error } = await dbInventario
           .from('productos')
           .delete()
           .eq('ProductoID', id);
