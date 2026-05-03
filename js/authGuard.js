@@ -29,13 +29,17 @@
 
     // 3. Si no hay sesión válida, redirigir al login
     if (!sesion || !sesion.id) {
-        // Calcular ruta relativa hacia incioSesion.html
-        var ruta = window.location.pathname;
-        var destino = ruta.indexOf('/Vistas/') !== -1 || ruta.indexOf('/vistas/') !== -1
-            ? 'incioSesion.html'           // Ya estamos dentro de /Vistas/
-            : 'Vistas/incioSesion.html';   // Estamos en la raíz
-
-        window.location.replace(destino);
+        // Obtenemos la ruta absoluta de dónde se cargó este script (authGuard.js)
+        // para calcular dinámicamente la raíz del proyecto y apuntar al login correctamente
+        // sin importar si estamos en la raíz, en /Vistas/ o en /Vistas/Inventario/
+        if (document.currentScript) {
+            var scriptSrc = document.currentScript.src;
+            var destino = scriptSrc.replace(/\/[jJ][sS]\/authGuard\.js.*/, '/Vistas/incioSesion.html');
+            window.location.replace(destino);
+        } else {
+            // Fallback por si acaso
+            window.location.replace('/Vistas/incioSesion.html');
+        }
         return; // Detener ejecución
     }
 

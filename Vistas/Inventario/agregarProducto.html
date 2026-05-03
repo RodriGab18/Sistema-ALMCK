@@ -9,14 +9,14 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="../estilos/inventario.css">
-  <script src="../js/authGuard.js"></script>
+  <link rel="stylesheet" href="../../estilos/inventario.css">
+  <script src="../../js/authGuard.js"></script>
 </head>
 
 <body>
   <header class="header centered-header">
     <div class="logo-box">
-      <img src="../recursos/logoALMCK.jpeg" width="100" alt="Logo">
+      <img src="../../recursos/logoALMCK.jpeg" width="100" alt="Logo">
     </div>
   </header>
 
@@ -90,13 +90,13 @@
 
   <footer class="form-footer">
     <button>
-      <a class="btn-salir" href="inventario.html">Regresar</a>
+      <a class="btn-salir" href="../inventario.html">Regresar</a>
     </button>
   </footer>
 
   <script type="module">
     // 1. Importar dbInventario y la función de prueba
-    import { dbInventario, testSupabaseConnection } from '../js/supabaseClient.js';
+    import { dbInventario, testSupabaseConnection } from '../../js/supabaseClient.js';
 
     const form = document.getElementById('productoForm');
     const messageDiv = document.getElementById('message');
@@ -261,7 +261,7 @@
           document.getElementById('disponible').checked = true;
 
           setTimeout(() => {
-            window.location.href = 'inventario.html';
+            window.location.href = '../inventario.html';
           }, 2000);
         }
       } catch (error) {

@@ -1,7 +1,8 @@
 // login.js
 
-// 1. Importar el cliente de Supabase (Asegúrate de que la ruta sea correcta según tus carpetas)
+// 1. Importar el cliente de Supabase y el módulo de hashing
 import { dbPersonas } from '../js/supabaseClient.js';
+import { verifyPassword } from '../js/hash/hash.js';
 
 // 2. Capturar los elementos del DOM
 const loginForm = document.getElementById('login-form');
@@ -51,8 +52,8 @@ loginForm.addEventListener('submit', async (e) => {
         if (error || !data) {
             // Si hay un error en la consulta o no encuentra los datos
             showError("Usuario no encontrado o inactivo.");
-        } else if (data.password !== passwordVal) {
-            // Validar si la contraseña coincide (Actual: texto plano)
+        } else if (!(await verifyPassword(passwordVal, data.password))) {
+            // Validar si la contraseña coincide usando hash SHA-256
             showError("Contraseña incorrecta.");
         } else {
             // ✅ ¡LOGIN EXITOSO!

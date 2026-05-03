@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buscar Producto para Modificar</title>
-  <link rel="stylesheet" href="../estilos/inventario.css">
-  <script src="../js/authGuard.js"></script>
+  <link rel="stylesheet" href="../../estilos/inventario.css">
+  <script src="../../js/authGuard.js"></script>
 </head>
 <body>
 
@@ -43,7 +43,7 @@
   </div>
 
   <script type="module">
-    import { supabase } from '../js/supabaseClient.js';
+    import { supabase } from '../../js/supabaseClient.js';
 
     const campoBusqueda = document.getElementById('campoBusqueda');
     const cuerpoTabla = document.getElementById('cuerpoTabla');
@@ -100,7 +100,7 @@
 
     // Función global para redireccionar
     window.irAEditar = (id) => {
-      window.location.href = `formularioEditar.html?id=${id}`;
+      window.location.href = `modificarProducto.html?id=${id}`;
     };
   </script>
 </body>
