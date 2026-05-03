@@ -34,12 +34,12 @@
 
       <main class="main-content">
         <div class="actions-grid">
-          <a class="action-btn" href="consultaInventario.html">
+          <a class="action-btn" href="Inventario/consultaInventario.html">
             <span style="font-size: 3rem;">📋</span>
               Consultar Inventario
             </a>
 
-          <a class="action-btn" href="agregarProducto.html">
+          <a class="action-btn" href="Inventario/agregarProducto.html">
             <span style="font-size: 3rem;">➕</span>
               Agregar Producto
           </a>
@@ -55,7 +55,7 @@
 
     <script type="module">
       // Importamos el cliente específico para inventario
-      import { dbInventario } from '../supabaseClient.js';
+      import { dbInventario } from '../js/supabaseClient.js';
       
       async function testConnection() {
         try {
