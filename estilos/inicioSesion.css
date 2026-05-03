@@ -1,0 +1,189 @@
+/* inicioSesion.css */
+
+/* 1. Variables Globales para mantener consistencia en el diseño (Diseño del Sistema) */
+:root {
+    --primary-color: #2563eb;
+    /* Azul corporativo principal */
+    --primary-hover: #1d4ed8;
+    /* Azul más oscuro para hover */
+    --bg-color: #f8fafc;
+    /* Fondo general muy claro */
+    --card-bg: #ffffff;
+    /* Fondo de la tarjeta (blanco) */
+    --text-main: #0f172a;
+    /* Texto principal oscuro */
+    --text-muted: #64748b;
+    /* Texto secundario (gris) */
+    --border-color: #e2e8f0;
+    /* Color de bordes suaves */
+    --error-bg: #fee2e2;
+    /* Fondo rojo suave para errores */
+    --error-text: #dc2626;
+    /* Texto rojo intenso para errores */
+}
+
+/* 2. Reseteo Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 3. Estilos Generales del Cuerpo */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    padding: 20px;
+    width: 100%;
+    position: absolute;
+    /* Mantiene el logo en la parte superior sin alterar el centrado de la tarjeta */
+    top: 0;
+    left: 0;
+}
+
+/* 4. Contenedor Principal (Centrado con Flexbox) */
+.login-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin-top: 60px;
+    /* Espacio para que el header no se sobreponga en móviles */
+}
+
+/* 5. Tarjeta de Login (UI/UX) */
+.login-card {
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 420px;
+    /* Ancho máximo para no verse estirado en monitores grandes */
+    padding: 40px 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 4px 6px rgba(0, 0, 0, 0.02);
+    /* Sombra elegante */
+}
+
+.login-card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.login-card p {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+}
+
+/* 6. Alerta de Errores (Integración con JS) */
+.alert-error {
+    display: none;
+    /* Se oculta por defecto, se muestra con JavaScript */
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    border: 1px solid #fecaca;
+    font-weight: 600;
+}
+
+/* 7. Estilos del Formulario */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.form-group input {
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    outline: none;
+    background-color: #fcfcfc;
+}
+
+/* Interacción de Inputs (Accesibilidad) */
+.form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    /* Anillo de enfoque azul */
+    background-color: #ffffff;
+}
+
+/* 8. Botón Principal */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-login:active {
+    transform: scale(0.98);
+    /* Efecto de clic */
+}
+
+/* 9. Enlace inferior */
+.forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 24px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* 10. Responsividad (Media Queries) */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 30px 20px;
+        /* Menos padding en móviles */
+    }
+
+    .login-card h2 {
+        font-size: 1.6rem;
+    }
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Personal - Sistema ALMCK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../estilos/gestion.css" />
+    <script src="../js/authGuard.js"></script>
+    <style>
+        /* Estilos específicos para la tabla de empleados */
+        .employee-table-container {
+            margin-top: 40px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'DM Sans';
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 2px solid var(--bg-card);
+            color: var(--icon-color);
+            font-family: 'Syne';
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Estilos del modal de registro */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            border: 4px solid var(--accent);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid var(--bg-card);
+            font-family: 'DM Sans';
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Etiquetas visuales para puestos */
+        .badge-puesto {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .badge-gerente {
+            background: #fef08a;
+            color: #854d0e;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo-box">
+            <img src="../recursos/logoALMCK.jpeg" width="100" alt="Logo ALMCK">
+        </div>
+        <h1 style="font-family: 'Syne'; color: var(--icon-color);">RRHH - Empleados</h1>
+    </header>
+
+    <main class="main-content" style="flex-direction: column; gap: 40px;">
+
+        <!-- Botones de Acción -->
+        <div class="actions-grid">
+            <button class="action-btn" onclick="abrirModalEmpleado()">
+                <span style="font-size: 2.5rem;">👤+</span>
+                Contratar Empleado
+            </button>
+            <button class="action-btn" onclick="cargarEmpleados()">
+                <span style="font-size: 2.5rem;">📋</span>
+                Ver Planilla
+            </button>
+        </div>
+
+        <!-- Tabla de Empleados -->
+        <div class="employee-table-container">
+            <table id="tablaEmpleados">
+                <thead>
+                    <tr>
+                        <th>DPI</th>
+                        <th>Nombre</th>
+                        <th>Puesto</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="listaEmpleados">
+                    <tr>
+                        <td colspan="5" style="text-align:center; color: #888;">Usa "Ver Planilla" para cargar los datos
+                            de la base de datos</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Modal para Agregar/Contratar Empleado -->
+    <div id="modalEmpleado" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="font-family: 'Syne'; margin-bottom: 20px;">📝 Registrar Empleado</h2>
+            <form id="formEmpleado">
+
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="e_nombre" required placeholder="Ej: Juan Pérez">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>DPI (13 dígitos) *</label>
+                        <input type="text" id="e_dpi" maxlength="13" pattern="\\d{13}"
+                            title="Debe contener exactamente 13 números" required placeholder="1234567890123">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="e_tel" placeholder="1234-5678">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Dirección Completa</label>
+                    <input type="text" id="e_dir" placeholder="Ciudad, Zona, etc.">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Usuario del sistema *</label>
+                        <input type="text" id="e_username" required placeholder="jperez">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña *</label>
+                        <input type="password" id="e_password" required placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Puesto Asignado *</label>
+                    <select id="e_puesto_id" required>
+                        <option value="" disabled selected>Seleccione un puesto</option>
+                        <option value="1">Gerente</option>
+                        <option value="2">Empleado de Ventas</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: flex-end;">
+                    <button type="button" class="nav-pill" onclick="cerrarModal()"
+                        style="border:none; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="action-btn"
+                        style="padding: 12px 25px; font-size: 1rem; width: auto; border:none; cursor:pointer;">💾
+                        Guardar Empleado</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer de Navegación -->
+    <footer class="footer" style="margin-top: 40px;">
+        <a class="nav-pill nav-pill--back" href="Gestión.html">← Regresar a Gestión</a>
+    </footer>
+
+    <!-- Lógica JavaScript y Supabase -->
+    <script type="module">
+        import { dbPersonas } from '../js/supabaseClient.js';
+
+        // 1. Cargar Empleados desde la Base de Datos
+        async function cargarEmpleados() {
+            const lista = document.getElementById('listaEmpleados');
+            lista.innerHTML = '<tr><td colspan="5" style="text-align:center;">⏳ Cargando planilla...</td></tr>';
+
+            try {
+                // Solo traemos a los empleados activos
+                const { data, error } = await dbPersonas.from('empleados').select('*').eq('activo', true);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    lista.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay empleados registrados o activos actualmente.</td></tr>';
+                    return;
+                }
+
+                lista.innerHTML = data.map(emp => {
+                    // Mapeo visual del rol
+                    const puestoClase = emp.puesto_id === 1 ? 'badge-puesto badge-gerente' : 'badge-puesto';
+                    const puestoTexto = emp.puesto_id === 1 ? 'Gerente 👑' : 'Empleado 👤';
+
+                    return `
+            <tr>
+              <td>${emp.dpi}</td>
+              <td><strong>${emp.nombre}</strong></td>
+              <td><span class="${puestoClase}">${puestoTexto}</span></td>
+              <td>${emp.telefono || 'Sin registrar'}</td>
+              <td>
+                <button onclick="eliminarEmpleado(${emp.id}, '${emp.nombre}')" title="Dar de baja" style="border:none; background:none; cursor:pointer; font-size: 1.5rem;">🗑️</button>
+              </td>
+            </tr>
+          `}).join('');
+
+            } catch (err) {
+                console.error(err);
+                lista.innerHTML = `<tr><td colspan="5" style="text-align:center; color: red;">❌ Error al conectar: ${err.message}</td></tr>`;
+            }
+        }
+
+        // 2. Guardar un Nuevo Empleado (Insert)
+        document.getElementById('formEmpleado').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Guardando...";
+
+            const nuevoEmpleado = {
+                nombre: document.getElementById('e_nombre').value.trim(),
+                dpi: document.getElementById('e_dpi').value.trim(),
+                telefono: document.getElementById('e_tel').value.trim(),
+                direccion: document.getElementById('e_dir').value.trim(), // Añadido campo dirección
+                username: document.getElementById('e_username').value.trim(),
+                password: document.getElementById('e_password').value,
+                puesto_id: parseInt(document.getElementById('e_puesto_id').value),
+                activo: true
+            };
+
+            try {
+                const { error } = await dbPersonas.from('empleados').insert([nuevoEmpleado]);
+                if (error) throw error;
+
+                alert("✅ Empleado registrado correctamente en el sistema.");
+                cerrarModal();
+                cargarEmpleados(); // Refresca la tabla automáticamente
+
+            } catch (err) {
+                alert("❌ Error al registrar: " + err.message);
+                console.error(err);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "💾 Guardar Empleado";
+            }
+        });
+
+        // 3. Funciones Globales para manejo de la vista (Exponerlas a Window)
+        window.abrirModalEmpleado = () => {
+            document.getElementById('formEmpleado').reset(); // Limpia el form al abrir
+            document.getElementById('modalEmpleado').style.display = 'flex';
+        };
+
+        window.cerrarModal = () => {
+            document.getElementById('modalEmpleado').style.display = 'none';
+        };
+
+        window.cargarEmpleados = cargarEmpleados;
+
+        // 4. Borrado Lógico (Soft Delete)
+        window.eliminarEmpleado = async (id, nombre) => {
+            if (confirm(`¿Estás seguro que deseas dar de baja al empleado: ${nombre}?`)) {
+                try {
+                    const { error } = await dbPersonas.from('empleados').update({ activo: false }).eq('id', id);
+                    if (error) throw error;
+
+                    alert(`✅ ${nombre} ha sido dado de baja.`);
+                    cargarEmpleados(); // Refresca la tabla
+                } catch (err) {
+                    alert("❌ No se pudo eliminar: " + err.message);
+                }
+            }
+        };
+
+    </script>
+</body>
+
+</html>

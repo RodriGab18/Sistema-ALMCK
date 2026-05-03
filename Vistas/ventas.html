@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nueva Venta - Sistema ALMCK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../estilos/inventario.css">
+  <script src="../js/authGuard.js"></script>
+</head>
+<body>
+  <header class="header centered-header">
+    <img src="../recursos/logoALMCK.jpeg" width="80" alt="Logo">
+  </header>
+
+  <main class="main-container">
+    <h1>🛒 Nueva Venta</h1>
+
+    <div class="sales-grid">
+      <section>
+        <div class="form-group">
+          <label>Buscar Producto</label>
+          <input type="text" id="prodSearch" placeholder="Escribe nombre del producto..." autocomplete="off">
+          <div id="searchResults" class="product-search-results" style="display:none;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Empleado que atiende</label>
+          <select id="selectEmpleado">
+            <option value="">Seleccione Empleado...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Cliente</label>
+          <select id="selectCliente">
+            <option value="">Seleccione Cliente...</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="cart-container">
+        <h3>Resumen de Venta</h3>
+        <div id="cartItems">
+          <p style="color: #888;">El carrito está vacío</p>
+        </div>
+
+        <div class="total-section" id="totalDisplay">Total: Q 0.00</div>
+
+        <div class="form-group" style="margin-top: 20px;">
+          <label><input type="checkbox" id="checkDeuda" style="width: auto; margin-right: 8px;"> Es venta al crédito (Deuda)</label>
+        </div>
+
+        <button id="btnFinalizar" class="btn-pay" disabled>Finalizar Venta</button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="centered-footer">
+    <button class="btn-pill" onclick="window.location.href='../index.html'">← Regresar al Menú</button>
+  </footer>
+
+  <script type="module">
+    // Asegúrate de que la ruta a supabaseClient sea la correcta según tus carpetas
+    import { dbInventario, dbPersonas, dbVentas } from '../js/supabaseClient.js';
+
+    let carrito = [];
+    let totalVenta = 0;
+
+    // --- CARGA INICIAL ---
+    async function inicializar() {
+      try {
+        // Cargar Empleados
+        const { data: empleados, error: errEmp } = await dbPersonas.from('empleados').select('id, nombre_empleado'); // Ajusta "nombre_empleado" si tu columna se llama distinto
+        if(empleados){
+            empleados.forEach(e => {
+              const opt = new Option(e.nombre_empleado || e.nombre, e.id);
+              document.getElementById('selectEmpleado').add(opt);
+            });
+        }
+
+        // Cargar Clientes
+        const { data: clientes, error: errCli } = await dbPersonas.from('clientes').select('id, nombre'); // Ajusta si la columna se llama distinto
+        if(clientes){
+            clientes.forEach(c => {
+              const opt = new Option(c.nombre, c.id);
+              document.getElementById('selectCliente').add(opt);
+            });
+        }
+      } catch (e) {
+        console.error("Error al inicializar:", e);
+      }
+    }
+
+    // --- BUSCADOR DE PRODUCTOS ---
+    document.getElementById('prodSearch').addEventListener('input', async (e) => {
+      const term = e.target.value;
+      const resultsDiv = document.getElementById('searchResults');
+      
+      if (term.length < 2) { resultsDiv.style.display = 'none'; return; }
+
+      // CORRECCIÓN: Nombres exactos de las columnas en tu base de datos (NombreProducto, Cantidad)
+      const { data: prods, error } = await dbInventario
+        .from('productos')
+        .select('*')
+        .ilike('NombreProducto', `%${term}%`)
+        .gt('Cantidad', 0)
+        .limit(5);
+
+      if (error) console.error("Error buscando producto:", error);
+
+      resultsDiv.innerHTML = '';
+      if (prods && prods.length > 0) {
+        resultsDiv.style.display = 'block';
+        prods.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'search-item';
+          // CORRECCIÓN: p.NombreProducto y p.Precio
+          div.innerHTML = `<span>${p.NombreProducto}</span> <b>Q${p.Precio.toFixed(2)}</b>`;
+          div.onclick = () => agregarAlCarrito(p);
+          resultsDiv.appendChild(div);
+        });
+      }
+    });
+
+    function agregarAlCarrito(p) {
+      const existe = carrito.find(item => item.ProductoID === p.ProductoID);
+      if (existe) {
+        // Validar que no sobrepase el stock disponible en la base de datos
+        if(existe.cantidad < p.Cantidad) {
+            existe.cantidad++;
+        } else {
+            alert(`Solo hay ${p.Cantidad} unidades disponibles de este producto.`);
+        }
+      } else {
+        carrito.push({ ...p, cantidad: 1 });
+      }
+      document.getElementById('searchResults').style.display = 'none';
+      document.getElementById('prodSearch').value = '';
+      renderizarCarrito();
+    }
+
+    function renderizarCarrito() {
+      const container = document.getElementById('cartItems');
+      const btn = document.getElementById('btnFinalizar');
+      container.innerHTML = '';
+      totalVenta = 0;
+
+      if (carrito.length === 0) {
+        container.innerHTML = '<p style="color: #888;">El carrito está vacío</p>';
+        btn.disabled = true;
+      } else {
+        btn.disabled = false;
+        carrito.forEach((item, index) => {
+          // CORRECCIÓN: item.Precio
+          totalVenta += (item.Precio * item.cantidad);
+          const div = document.createElement('div');
+          div.className = 'cart-item';
+          div.innerHTML = `
+            <span>${item.NombreProducto} (x${item.cantidad})</span>
+            <span>Q${(item.Precio * item.cantidad).toFixed(2)}</span>
+          `;
+          container.appendChild(div);
+        });
+      }
+      document.getElementById('totalDisplay').innerText = `Total: Q ${totalVenta.toFixed(2)}`;
+    }
+
+    // --- LÓGICA DE VENTA FINAL ---
+    document.getElementById('btnFinalizar').onclick = async () => {
+      const clienteId = document.getElementById('selectCliente').value;
+      const empleadoId = document.getElementById('selectEmpleado').value;
+      const esDeuda = document.getElementById('checkDeuda').checked;
+
+      if (!clienteId || !empleadoId) {
+        alert("Por favor selecciona cliente y empleado");
+        return;
+      }
+
+      try {
+        document.getElementById('btnFinalizar').disabled = true;
+        document.getElementById('btnFinalizar').innerText = 'Procesando...';
+
+        // 1. Crear la Venta
+        const { data: venta, error: eVenta } = await dbVentas.from('ventas').insert({
+          cliente_id: clienteId,
+          empleado_id: empleadoId,
+          total: totalVenta,
+          metodo_pago: esDeuda ? 'Crédito' : 'Efectivo'
+        }).select().single();
+
+        if (eVenta) throw eVenta;
+
+        // 2. Detalles e Inventario
+        for (const item of carrito) {
+          await dbVentas.from('detalles_venta').insert({
+            venta_id: venta.id,
+            producto_id: item.ProductoID,
+            cantidad: item.cantidad,
+            precio_unitario: item.Precio // CORRECCIÓN: item.Precio
+          });
+
+          // Descontar stock (CORRECCIÓN: item.Cantidad)
+          await dbInventario.from('productos')
+            .update({ Cantidad: item.Cantidad - item.cantidad })
+            .eq('ProductoID', item.ProductoID);
+        }
+
+        // 3. Actualizar Cliente (Asegúrate de que estas columnas existan en tu tabla 'clientes')
+        const { data: cData } = await dbPersonas.from('clientes').select('*').eq('id', clienteId).single();
+        if (cData) {
+            const updates = {
+              contador_compras: (cData.contador_compras || 0) + 1,
+              monto_deuda: esDeuda ? (cData.monto_deuda || 0) + totalVenta : cData.monto_deuda,
+              estado_deuda: esDeuda ? true : cData.estado_deuda
+            };
+            await dbPersonas.from('clientes').update(updates).eq('id', clienteId);
+        }
+
+        alert("✅ Venta realizada con éxito");
+        location.reload();
+
+      } catch (err) {
+        alert("Error: " + err.message);
+        document.getElementById('btnFinalizar').disabled = false;
+        document.getElementById('btnFinalizar').innerText = 'Finalizar Venta';
+      }
+    };
+
+    inicializar();
+  </script>
+</body>
+</html>

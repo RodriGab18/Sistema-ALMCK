@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - Sistema ALMCK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../estilos/inicioSesion.css" />
+    <style>
+        /* Estilos rápidos para las alertas de error (Puedes moverlo a ventas.css) */
+        .alert-error {
+            display: none;
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <!-- Integración del logo de la empresa como en el resto del sistema -->
+        <div class="logo-box" style="text-align: center; margin-top: 20px;">
+            <img src="../recursos/logoALMCK.jpeg" width="100" alt="Logo ALMCK" style="border-radius: 12px;">
+        </div>
+    </header>
+
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Bienvenido</h2>
+            <p>Ingresa tus credenciales de empleado para continuar</p>
+
+            <!-- Contenedor para mostrar errores desde JavaScript -->
+            <div id="login-error" class="alert-error"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <!-- CORRECCIÓN: Solicitamos Username en lugar de Correo -->
+                    <label for="username">Usuario (Username)</label>
+                    <input type="text" id="username" placeholder="Ej: jperez" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+                        required>
+                </div>
+
+                <button type="submit" id="btn-submit" class="btn-login">Iniciar Sesión</button>
+            </form>
+
+            <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+        </div>
+    </div>
+
+    <!-- Script movido al final del body por buenas prácticas de carga -->
+    <script type="module" src="../js/login.js"></script>
+</body>
+
+</html>
