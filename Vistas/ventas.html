@@ -63,7 +63,6 @@
   </footer>
 
   <script type="module">
-    // Asegúrate de que la ruta a supabaseClient sea la correcta según tus carpetas
     import { dbInventario, dbPersonas, dbVentas } from '../js/supabaseClient.js';
 
     let carrito = [];
@@ -73,16 +72,18 @@
     async function inicializar() {
       try {
         // Cargar Empleados
-        const { data: empleados, error: errEmp } = await dbPersonas.from('empleados').select('id, nombre_empleado'); // Ajusta "nombre_empleado" si tu columna se llama distinto
+        const { data: empleados, error: errEmp } = await dbPersonas.from('empleados').select('id, nombre').eq('activo', true);
+        if (errEmp) console.error("Error cargando empleados:", errEmp);
         if(empleados){
             empleados.forEach(e => {
-              const opt = new Option(e.nombre_empleado || e.nombre, e.id);
+              const opt = new Option(e.nombre || 'Sin nombre', e.id);
               document.getElementById('selectEmpleado').add(opt);
             });
         }
 
         // Cargar Clientes
-        const { data: clientes, error: errCli } = await dbPersonas.from('clientes').select('id, nombre'); // Ajusta si la columna se llama distinto
+        const { data: clientes, error: errCli } = await dbPersonas.from('clientes').select('id, nombre');
+        if (errCli) console.error("Error cargando clientes:", errCli);
         if(clientes){
             clientes.forEach(c => {
               const opt = new Option(c.nombre, c.id);
@@ -101,12 +102,13 @@
       
       if (term.length < 2) { resultsDiv.style.display = 'none'; return; }
 
-      // CORRECCIÓN: Nombres exactos de las columnas en tu base de datos (NombreProducto, Cantidad)
+      // Columnas reales: nombreProducto, cantidadProducto, precioProducto (según consultaInventario.html)
       const { data: prods, error } = await dbInventario
         .from('productos')
         .select('*')
-        .ilike('NombreProducto', `%${term}%`)
-        .gt('Cantidad', 0)
+        .ilike('nombreProducto', `%${term}%`)
+        .gt('cantidadProducto', 0)
+        .eq('activo', true)
         .limit(5);
 
       if (error) console.error("Error buscando producto:", error);
@@ -117,11 +119,12 @@
         prods.forEach(p => {
           const div = document.createElement('div');
           div.className = 'search-item';
-          // CORRECCIÓN: p.NombreProducto y p.Precio
-          div.innerHTML = `<span>${p.NombreProducto}</span> <b>Q${p.Precio.toFixed(2)}</b>`;
+          div.innerHTML = `<span>${p.nombreProducto}</span> <b>Q${Number(p.precioProducto).toFixed(2)}</b>`;
           div.onclick = () => agregarAlCarrito(p);
           resultsDiv.appendChild(div);
         });
+      } else {
+        resultsDiv.style.display = 'none';
       }
     });
 
@@ -129,10 +132,10 @@
       const existe = carrito.find(item => item.ProductoID === p.ProductoID);
       if (existe) {
         // Validar que no sobrepase el stock disponible en la base de datos
-        if(existe.cantidad < p.Cantidad) {
+        if(existe.cantidad < p.cantidadProducto) {
             existe.cantidad++;
         } else {
-            alert(`Solo hay ${p.Cantidad} unidades disponibles de este producto.`);
+            alert(`Solo hay ${p.cantidadProducto} unidades disponibles de este producto.`);
         }
       } else {
         carrito.push({ ...p, cantidad: 1 });
@@ -154,13 +157,12 @@
       } else {
         btn.disabled = false;
         carrito.forEach((item, index) => {
-          // CORRECCIÓN: item.Precio
-          totalVenta += (item.Precio * item.cantidad);
+          totalVenta += (item.precioProducto * item.cantidad);
           const div = document.createElement('div');
           div.className = 'cart-item';
           div.innerHTML = `
-            <span>${item.NombreProducto} (x${item.cantidad})</span>
-            <span>Q${(item.Precio * item.cantidad).toFixed(2)}</span>
+            <span>${item.nombreProducto} (x${item.cantidad})</span>
+            <span>Q${(item.precioProducto * item.cantidad).toFixed(2)}</span>
           `;
           container.appendChild(div);
         });
@@ -199,16 +201,16 @@
             venta_id: venta.id,
             producto_id: item.ProductoID,
             cantidad: item.cantidad,
-            precio_unitario: item.Precio // CORRECCIÓN: item.Precio
+            precio_unitario: item.precioProducto
           });
 
-          // Descontar stock (CORRECCIÓN: item.Cantidad)
+          // Descontar stock
           await dbInventario.from('productos')
-            .update({ Cantidad: item.Cantidad - item.cantidad })
+            .update({ cantidadProducto: item.cantidadProducto - item.cantidad })
             .eq('ProductoID', item.ProductoID);
         }
 
-        // 3. Actualizar Cliente (Asegúrate de que estas columnas existan en tu tabla 'clientes')
+        // 3. Actualizar Cliente
         const { data: cData } = await dbPersonas.from('clientes').select('*').eq('id', clienteId).single();
         if (cData) {
             const updates = {
@@ -223,6 +225,7 @@
         location.reload();
 
       } catch (err) {
+        console.error("Error finalizando venta:", err);
         alert("Error: " + err.message);
         document.getElementById('btnFinalizar').disabled = false;
         document.getElementById('btnFinalizar').innerText = 'Finalizar Venta';
