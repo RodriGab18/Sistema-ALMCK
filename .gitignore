@@ -1,4 +1,5 @@
 config.js
 supabaseClient.js
 .env
+.env.local
 .DS_Store
