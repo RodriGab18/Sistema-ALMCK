@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Gestión de Clientes - Sistema ALMCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">  
   <link rel="stylesheet" href="../estilos/inventario.css">
+  <link rel="stylesheet" href="../estilos/responsive.css">
   <script src="../js/authGuard.js"></script>
 </head>
 <body>
@@ -25,8 +26,8 @@
         <span style="font-family: 'DM Sans';">Solo deudores</span>
       </label>
 
-      <button onclick="cargarClientes()" class="btn-action btn-action--accent">Aplicar</button>
-      <button onclick="abrirModalNuevo()" class="btn-action btn-action--secondary" style="background:#d1fae5;">+ Nuevo Cliente</button>
+      <button onclick="cargarClientes()" class="btn-action" style="background: #6366f1; color: #ffffff; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); border: none; transition: transform 0.2s, box-shadow 0.2s;">Aplicar</button>
+      <button onclick="abrirModalNuevo()" class="btn-action" style="background: #10b981; color: #ffffff; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); border: none; transition: transform 0.2s, box-shadow 0.2s;">+ Nuevo Cliente</button>
     </div>
 
     <div id="clientesList">
@@ -76,7 +77,7 @@
 
         <div class="modal-actions">
           <button type="button" class="btn-pill" onclick="cerrarModal()" style="border:none; cursor:pointer;">Cancelar</button>
-          <button type="submit" class="btn-action" style="background:#ffcce1; border:none; padding: 12px 25px; cursor:pointer;">💾 Guardar Cliente</button>
+          <button type="submit" class="btn-action" style="background: #10b981; color: #ffffff; font-weight: bold; border:none; padding: 12px 25px; cursor:pointer; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); transition: transform 0.2s, box-shadow 0.2s;">💾 Guardar Cliente</button>
         </div>
       </form>
     </div>
@@ -114,9 +115,10 @@
         }
 
         const html = `
-          <table class="productos-table">
-            <thead>
-              <tr>
+          <div class="table-container">
+            <table class="productos-table">
+              <thead>
+                <tr>
                 <th>ID</th>
                 <th>Cliente / Direcciones</th>
                 <th>Teléfono</th>
@@ -150,8 +152,9 @@
                   </td>
                 </tr>
               `).join('')}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         `;
         container.innerHTML = html;
       } catch (err) {

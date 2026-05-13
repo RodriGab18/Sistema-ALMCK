@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Historial de Ventas - Sistema ALMCK</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../../estilos/inventario.css">
+    <link rel="stylesheet" href="../../estilos/responsive.css">
     <script src="../../js/authGuard.js"></script>
 </head>
 
@@ -24,12 +25,12 @@
     <main class="main-content" style="flex-direction: column; gap: 20px;">
 
         <div class="filters-container">
-            <input type="date" id="f_fecha" title="Filtrar por fecha exacta">
-            <input type="text" id="f_cliente" placeholder="🔍 Buscar por cliente...">
-            <input type="text" id="f_vendedor" placeholder="🔍 Buscar por vendedor...">
-            <button class="action-btn" style="padding: 10px 20px; font-size: 1rem; width: auto;"
+            <input type="date" id="f_fecha" class="search-input" title="Filtrar por fecha exacta">
+            <input type="text" id="f_cliente" class="search-input" placeholder="🔍 Buscar por cliente...">
+            <input type="text" id="f_vendedor" class="search-input" placeholder="🔍 Buscar por vendedor...">
+            <button class="btn-primary" style="padding: 12px 20px; font-size: 1rem; width: auto;"
                 onclick="aplicarFiltros()">Aplicar Filtros</button>
-            <button class="nav-pill" style="border:none; cursor:pointer;" onclick="limpiarFiltros()">Limpiar</button>
+            <button class="btn-secondary" style="padding: 12px 20px; font-size: 1rem; width: auto; cursor:pointer;" onclick="limpiarFiltros()">Limpiar</button>
         </div>
 
         <div class="table-container">
@@ -74,8 +75,8 @@
                 if (clientes) clientes.forEach(c => clientesMap[c.id] = c.nombre);
 
                 // 2. Cargar Empleados
-                const { data: empleados } = await dbPersonas.from('empleados').select('id, nombre, nombre_empleado');
-                if (empleados) empleados.forEach(e => empleadosMap[e.id] = e.nombre_empleado || e.nombre);
+                const { data: empleados } = await dbPersonas.from('empleados').select('id, nombre');
+                if (empleados) empleados.forEach(e => empleadosMap[e.id] = e.nombre);
 
                 // 3. Cargar Ventas
                 const { data: ventas, error } = await dbVentas.from('ventas').select('*').order('id', { ascending: false });
