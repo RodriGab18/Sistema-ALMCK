@@ -1,16 +1,57 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Nueva Venta - Sistema ALMCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="../estilos/inventario.css">
   <link rel="stylesheet" href="../estilos/responsive.css">
   <script src="../js/authGuard.js"></script>
+
+  <style>
+    /* Estilos adicionales para asegurar que el modal se vea bien */
+    .client-select-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .client-select-group select {
+      flex: 1;
+    }
+
+    .btn-add-client {
+      background: #d1fae5;
+      color: #065f46;
+      border: 2px solid #059669;
+      padding: 10px 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .btn-add-client:hover {
+      background: #a7f3d0;
+    }
+
+    /* Modal de cliente adaptado para ventas */
+    .modal-actions-client {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+    }
+  </style>
 </head>
+
 <body>
   <header class="header centered-header">
     <img src="../recursos/logoALMCK.jpeg" width="80" alt="Logo">
@@ -36,9 +77,13 @@
 
         <div class="form-group">
           <label>Cliente</label>
-          <select id="selectCliente">
-            <option value="">Seleccione Cliente...</option>
-          </select>
+          <div class="client-select-group">
+            <select id="selectCliente">
+              <option value="">Seleccione Cliente...</option>
+            </select>
+            <button type="button" class="btn-add-client" onclick="abrirModalCliente()" title="Agregar nuevo cliente">+
+              Nuevo</button>
+          </div>
         </div>
       </section>
 
@@ -51,13 +96,64 @@
         <div class="total-section" id="totalDisplay">Total: Q 0.00</div>
 
         <div class="form-group" style="margin-top: 20px;">
-          <label><input type="checkbox" id="checkDeuda" style="width: auto; margin-right: 8px;"> Es venta al crédito (Deuda)</label>
+          <label><input type="checkbox" id="checkDeuda" style="width: auto; margin-right: 8px;"> Es venta al crédito
+            (Deuda)</label>
         </div>
 
         <button id="btnFinalizar" class="btn-pay" disabled>Finalizar Venta</button>
       </section>
     </div>
   </main>
+
+  <div id="modalCliente" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-family: 'Syne';">✨ Registro Rápido de Cliente</h2>
+        <button type="button" class="btn-close" onclick="cerrarModalCliente()">×</button>
+      </div>
+
+      <form id="nuevoClienteForm">
+        <div class="form-group">
+          <label>Nombre Completo *</label>
+          <input type="text" id="c_nombre" required placeholder="Ej: Ana García">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="c_telefono" placeholder="5555-4444">
+          </div>
+          <div class="form-group">
+            <label>Deuda Inicial (Q)</label>
+            <input type="number" id="c_deuda" step="0.01" value="0" min="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Dirección Principal *</label>
+          <input type="text" id="c_dir1" required placeholder="Ubicación de entrega principal">
+        </div>
+
+        <div class="form-group">
+          <label>Direcciones Opcionales</label>
+          <input type="text" id="c_dir2" placeholder="Segunda dirección" style="margin-bottom: 5px;">
+          <input type="text" id="c_dir3" placeholder="Tercera dirección">
+        </div>
+
+        <div class="form-group">
+          <label>Notas Extra</label>
+          <textarea id="c_comentarios" rows="2" placeholder="Preferencias, referencias de color, etc."></textarea>
+        </div>
+
+        <div class="modal-actions-client">
+          <button type="button" class="btn-pill" onclick="cerrarModalCliente()"
+            style="border:none; cursor:pointer;">Cancelar</button>
+          <button type="submit" class="btn-action"
+            style="background:#ffcce1; border:none; padding: 12px 25px; cursor:pointer;">💾 Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <footer class="centered-footer">
     <button class="btn-pill" onclick="window.location.href='../index.html'">← Regresar al Menú</button>
@@ -75,21 +171,21 @@
         // Cargar Empleados
         const { data: empleados, error: errEmp } = await dbPersonas.from('empleados').select('id, nombre').eq('activo', true);
         if (errEmp) console.error("Error cargando empleados:", errEmp);
-        if(empleados){
-            empleados.forEach(e => {
-              const opt = new Option(e.nombre || 'Sin nombre', e.id);
-              document.getElementById('selectEmpleado').add(opt);
-            });
+        if (empleados) {
+          empleados.forEach(e => {
+            const opt = new Option(e.nombre || 'Sin nombre', e.id);
+            document.getElementById('selectEmpleado').add(opt);
+          });
         }
 
         // Cargar Clientes
         const { data: clientes, error: errCli } = await dbPersonas.from('clientes').select('id, nombre');
         if (errCli) console.error("Error cargando clientes:", errCli);
-        if(clientes){
-            clientes.forEach(c => {
-              const opt = new Option(c.nombre, c.id);
-              document.getElementById('selectCliente').add(opt);
-            });
+        if (clientes) {
+          clientes.forEach(c => {
+            const opt = new Option(c.nombre, c.id);
+            document.getElementById('selectCliente').add(opt);
+          });
         }
       } catch (e) {
         console.error("Error al inicializar:", e);
@@ -100,10 +196,9 @@
     document.getElementById('prodSearch').addEventListener('input', async (e) => {
       const term = e.target.value;
       const resultsDiv = document.getElementById('searchResults');
-      
+
       if (term.length < 2) { resultsDiv.style.display = 'none'; return; }
 
-      // Columnas reales: nombreProducto, cantidadProducto, precioProducto (según consultaInventario.html)
       const { data: prods, error } = await dbInventario
         .from('productos')
         .select('*')
@@ -132,11 +227,10 @@
     function agregarAlCarrito(p) {
       const existe = carrito.find(item => item.ProductoID === p.ProductoID);
       if (existe) {
-        // Validar que no sobrepase el stock disponible en la base de datos
-        if(existe.cantidad < p.cantidadProducto) {
-            existe.cantidad++;
+        if (existe.cantidad < p.cantidadProducto) {
+          existe.cantidad++;
         } else {
-            alert(`Solo hay ${p.cantidadProducto} unidades disponibles de este producto.`);
+          alert(`Solo hay ${p.cantidadProducto} unidades disponibles de este producto.`);
         }
       } else {
         carrito.push({ ...p, cantidad: 1 });
@@ -170,6 +264,56 @@
       }
       document.getElementById('totalDisplay').innerText = `Total: Q ${totalVenta.toFixed(2)}`;
     }
+
+    // --- LÓGICA DEL MODAL CLIENTES ---
+    window.abrirModalCliente = () => {
+      document.getElementById('modalCliente').style.display = 'flex';
+    };
+
+    window.cerrarModalCliente = () => {
+      document.getElementById('modalCliente').style.display = 'none';
+      document.getElementById('nuevoClienteForm').reset();
+    };
+
+    document.getElementById('nuevoClienteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const deuda = parseFloat(document.getElementById('c_deuda').value) || 0;
+
+      const datos = {
+        nombre: document.getElementById('c_nombre').value.trim(),
+        telefono: document.getElementById('c_telefono').value.trim(),
+        monto_deuda: deuda,
+        estado_deuda: deuda > 0,
+        comentarios: document.getElementById('c_comentarios').value.trim(),
+        direccion_principal: document.getElementById('c_dir1').value.trim(),
+        direccion_secundaria: document.getElementById('c_dir2').value.trim() || null,
+        direccion_tercera: document.getElementById('c_dir3').value.trim() || null,
+        contador_compras: 0
+      };
+
+      try {
+        // Enviar a la base de datos (Supabase) con la cláusula select() para que devuelva el ID creado
+        const { data, error } = await dbPersonas.from('clientes').insert([datos]).select();
+
+        if (error) throw error;
+
+        alert("✅ Cliente guardado con éxito");
+
+        // Agregar el nuevo cliente a la lista y autoseleccionarlo
+        if (data && data.length > 0) {
+          const clienteNuevo = data[0];
+          const selectCliente = document.getElementById('selectCliente');
+          const opt = new Option(clienteNuevo.nombre, clienteNuevo.id);
+          selectCliente.add(opt);
+          selectCliente.value = clienteNuevo.id;
+        }
+
+        cerrarModalCliente();
+      } catch (err) {
+        alert("❌ Error al guardar cliente: " + err.message);
+      }
+    });
 
     // --- LÓGICA DE VENTA FINAL ---
     document.getElementById('btnFinalizar').onclick = async () => {
@@ -214,12 +358,12 @@
         // 3. Actualizar Cliente
         const { data: cData } = await dbPersonas.from('clientes').select('*').eq('id', clienteId).single();
         if (cData) {
-            const updates = {
-              contador_compras: (cData.contador_compras || 0) + 1,
-              monto_deuda: esDeuda ? (cData.monto_deuda || 0) + totalVenta : cData.monto_deuda,
-              estado_deuda: esDeuda ? true : cData.estado_deuda
-            };
-            await dbPersonas.from('clientes').update(updates).eq('id', clienteId);
+          const updates = {
+            contador_compras: (cData.contador_compras || 0) + 1,
+            monto_deuda: esDeuda ? (cData.monto_deuda || 0) + totalVenta : cData.monto_deuda,
+            estado_deuda: esDeuda ? true : cData.estado_deuda
+          };
+          await dbPersonas.from('clientes').update(updates).eq('id', clienteId);
         }
 
         alert("✅ Venta realizada con éxito");
@@ -236,4 +380,5 @@
     inicializar();
   </script>
 </body>
+
 </html>

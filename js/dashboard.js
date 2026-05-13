@@ -15,14 +15,17 @@ async function verificarRolYMostrarModulos() {
         return;
     }
 
+    // Mostrar el nombre del usuario en la interfaz principal
+    const greetingEl = document.getElementById('user-greeting');
+    if (greetingEl && sesion.nombre) {
+        // Obtenemos solo el primer nombre para mantener el diseño limpio
+        greetingEl.textContent = `${sesion.nombre.split(' ')[0]}`;
+    }
+
     // 2. Consultar el rol del empleado usando su ID de sesión
     const { data: empleado, error: dbError } = await dbPersonas
         .from('empleados')
-        .select(`
-            id_puesto,
-            puesto_id,
-            puestos ( nivel_permiso )
-        `)
+        .select('puesto_id')
         .eq('id', sesion.id)
         .single();
 
@@ -31,9 +34,20 @@ async function verificarRolYMostrarModulos() {
         return;
     }
 
+    const puestoId = empleado.puesto_id;
+    
+    // Obtener nivel_permiso del puesto en una consulta separada
+    let nivelPermiso = null;
+    if (puestoId) {
+        const { data: puesto } = await dbPersonas
+            .from('puestos')
+            .select('nivel_permiso')
+            .eq('id', puestoId)
+            .maybeSingle();
+        if (puesto) nivelPermiso = puesto.nivel_permiso;
+    }
+
     // 3. Lógica de bloqueo — ocultar Gestión para empleados sin permiso
-    const puestoId = empleado.id_puesto || empleado.puesto_id;
-    const nivelPermiso = empleado.puestos?.nivel_permiso;
 
     if (puestoId === 2 || nivelPermiso === 2) {
         const btnGestion = document.getElementById('btn-gestion');
